@@ -37,7 +37,7 @@ sub flatten {
 
 sub as_hash {
     my $self = shift;
-    %$self;
+    tied(%$self)->as_hash;
 }
 
 sub as_hashref {
@@ -73,6 +73,11 @@ sub STORE {
     my($self, $key, $value) = @_;
     my @values = ref $value eq 'ARRAY' ? @$value : ($value);
     $self->[0]->{$key} = \@values;
+}
+
+sub as_hash {
+    my $self = shift;
+    %{$self->[0]};
 }
 
 sub flatten {
