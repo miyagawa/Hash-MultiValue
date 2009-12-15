@@ -22,7 +22,7 @@ sub set {
 
 sub getall {
     my($self, $key) = @_;
-    @{$self->{$key}};
+    tied(%$self)->getall($key);
 }
 
 sub keys {
@@ -67,7 +67,13 @@ sub TIEHASH {
 sub FETCH {
     my($self, $key) = @_;
     my $v = $self->[0]->{$key};
-    return Hash::MultiValue::Value->new(@$v);
+    return $v->[-1];
+}
+
+sub getall {
+    my($self, $key) = @_;
+    my $v = $self->[0]->{$key};
+    @$v;
 }
 
 sub STORE {
@@ -116,34 +122,6 @@ sub flatten {
     return @list;
 }
 
-package Hash::MultiValue::Value;
-use overload '@{}' => \&array, '""' => \&value, '0+' => \&value, fallback => 1;
-
-sub ref {
-    my $self = shift;
-    @{$self->{value}} > 1 ? 'ARRAY' : undef;
-}
-
-sub new {
-    my $class = shift;
-    bless { value => [@_] }, $class;
-}
-
-sub push {
-    my($self, $v) = @_;
-    push @{$self->{value}}, $v;
-}
-
-sub value {
-    my $self = shift;
-    $self->{value}->[-1];
-}
-
-sub array {
-    my $self = shift;
-    \@{$self->{value}};
-}
-
 1;
 __END__
 
@@ -167,11 +145,8 @@ Hash::MultiValue - Store multiple values per key
 
   # $hash is an object, but can be used as a hashref and DWIMs!
 
-  print $hash->{foo};        # 'b' (the last entry)
-  my @foo = @{$hash->{foo}}; # ('a', 'b')
-
-  # Object Oriented get
-  my $foo = $hash->get('foo'); # always 'b', independent of context
+  my $foo = $hash->{foo};         # 'b' (the last entry)
+  my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
   my @foo = $hash->getall('foo'); # ('a', 'b')
 
   keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
@@ -188,9 +163,7 @@ Hash::MultiValue - Store multiple values per key
 Hash::MultiValue is an object that behaves like a hash reference that
 may contain multiple values per key, inspired by MultiDict of WebOb.
 
-It uses C<tie> to reflect writes to a hash, and also a blessed objects
-with C<overload> to return values so it does the right thing in
-stringification and array derefernces context.
+It uses C<tie> to make the object behaves also like a hash reference.
 
 =head1 WHY THIS MODULE
 
@@ -214,26 +187,13 @@ as an ARRAY ref> or get stringified array I<ARRAY(0xXXXXXXXXX)> as a
 string, I<depending on user input> and which is miserable and
 insecure.
 
-This module provides a (black magic-ish, I admit) solution to this by
-returning a tied hash, which value returns a blessed object that
-behaves correctly when it's evaluated as a string/number (i.e. a
-single value) or as an array reference (i.e. multiple values).
+This module provides a solution to this by returning a tied hash which
+always behaves like an element with a single hash, but as well as an
+explicit API call like C<get> and C<getall> to return single or
+multiple values.
 
 Yes, there is L<Tie::Hash::MultiValue> and this module tries to solve
-exactly the same problem, but in more DWIM fashion.
-
-=head1 NOTES ABOUT ref
-
-If your existing application uses C<ref> to check if the hash value is multiple, i.e.:
-
-  my $form = $req->parameters;
-  my @v = ref $form->{v} eq 'ARRAY' ? @{$form->{v}} : ($form->{v});
-
-The C<ref> call would return the string I<Hash::MultiValue::Value> by
-default, so your code always assumes that it is a single value
-element. To avoid this, you can use L<UNIVERSAL::ref> module, and then
-if C<< $form->{v} >> has multiple values C<ref> would return C<ARRAY>
-instead, and your code would continue working.
+exactly the same problem, but in a slightly different API.
 
 =head1 AUTHOR
 

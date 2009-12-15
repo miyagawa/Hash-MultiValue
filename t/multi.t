@@ -10,13 +10,11 @@ my $hash = Hash::MultiValue->new(
 );
 
 is "$hash->{foo}", 'b';
-my @foo = @{$hash->{foo}};
+is ref $hash->{foo}, '';
+my @foo = $hash->getall('foo');
 is_deeply \@foo, [ 'a', 'b' ];
 is_deeply [ sort keys %$hash ], [ 'bar', 'baz', 'foo' ];
 is_deeply [ $hash->keys ], [ 'foo', 'bar', 'baz' ];
 is $hash->{baz} + 2, 35;
-
-is $hash->{baz}->ref, undef;
-is $hash->{foo}->ref, 'ARRAY';
 
 done_testing;
