@@ -64,6 +64,11 @@ sub as_hashref {
 package Hash::MultiValue::Value;
 use overload '@{}' => \&array, '""' => \&value, '0+' => \&value, fallback => 1;
 
+sub ref {
+    my $self = shift;
+    @{$self->{value}} > 1 ? 'ARRAY' : undef;
+}
+
 sub new {
     my $class = shift;
     bless { value => [] }, $class;
@@ -129,6 +134,19 @@ contains multiple values per key, inspired by MultiDict of WebOb.
 
 It doesn't use C<tie> but instead blessed objects with C<overload> for
 stringification and array derefernces etc.
+
+=head1 NOTES ABOUT ref
+
+If your existing application uses C<ref> to check if the hash value is multiple, i.e.:
+
+  my $form = $req->parameters;
+  my @v = ref $form->{v} eq 'ARRAY' ? @{$form->{v}} : ($form->{v});
+
+The C<ref> call would return the string I<Hash::MultiValue::Value> by
+default, so your code always assumes that it is a single value
+element. To avoid this, you can use L<UNIVERSAL::ref> module, and then
+if C<< $form->{v} >> has multiple values C<ref> would return C<ARRAY>
+instead, and your code would continue working.
 
 =head1 AUTHOR
 

@@ -15,4 +15,7 @@ is_deeply \@foo, [ 'a', 'b' ];
 is_deeply [ sort keys %$hash ], [ 'bar', 'baz', 'foo' ];
 is $hash->{baz} + 2, 35;
 
+is $hash->{baz}->ref, undef;
+is $hash->{foo}->ref, 'ARRAY';
+
 done_testing;
