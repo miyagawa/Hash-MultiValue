@@ -27,7 +27,7 @@ sub getall {
 
 sub keys {
     my $self = shift;
-    keys %$self;
+    tied(%$self)->keys;
 }
 
 sub flatten {
@@ -53,14 +53,15 @@ use base qw( Tie::ExtraHash );
 sub TIEHASH {
     my($class, @items) = @_;
 
-    my %hash;
+    my(%hash, @keys, %seen);
     while (@items) {
         my($key, $value) = splice @items, 0, 2;
         my @values = ref $value eq 'ARRAY' ? @$value : ($value);
         push @{$hash{$key}}, @values;
+        push @keys, $key unless $seen{$key}++;
     }
 
-    bless [ \%hash, {} ], $class;
+    bless [ \%hash, \@keys ], $class;
 }
 
 sub FETCH {
@@ -73,6 +74,27 @@ sub STORE {
     my($self, $key, $value) = @_;
     my @values = ref $value eq 'ARRAY' ? @$value : ($value);
     $self->[0]->{$key} = \@values;
+
+    for my $k (@{$self->[1]}) {
+        return if $key eq $k;
+    }
+    push @{$self->[1]}, $key;
+}
+
+sub DELETE {
+    my($self, $key) = @_;
+    delete $self->[0]->{$key};
+
+    my @new;
+    for my $k (@{$self->[1]}) {
+        push @new, $k if $key ne $k;
+    }
+    $self->[1] = \@new;
+}
+
+sub keys {
+    my $self = shift;
+    @{$self->[1]};
 }
 
 sub as_hash {
@@ -148,19 +170,18 @@ Hash::MultiValue - Store multiple values per key
   print $hash->{foo};        # 'b' (the last entry)
   my @foo = @{$hash->{foo}}; # ('a', 'b')
 
-  keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
+  # Object Oriented get
+  my $foo = $hash->get('foo'); # always 'b', independent of context
+  my @foo = $hash->getall('foo'); # ('a', 'b')
 
-  # get a plain hash. values are always array reference
+  keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
+  $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+
+  # get a plain hash. values are all array references
   %hash = $hash->as_hash;
 
-  # get a pair so you can pass to new()
+  # get a pair so you can pass it to new()
   @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
-
-  # Object Oriented get
-  my $v = $hash->get('foo'); # always 'b', independent of context
-  my @v = $hash->getall('foo'); # ('a', 'b')
-
-  $hash->keys; # ('foo', 'bar')
 
 =head1 DESCRIPTION
 

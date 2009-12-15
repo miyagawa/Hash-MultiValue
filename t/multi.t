@@ -13,6 +13,7 @@ is "$hash->{foo}", 'b';
 my @foo = @{$hash->{foo}};
 is_deeply \@foo, [ 'a', 'b' ];
 is_deeply [ sort keys %$hash ], [ 'bar', 'baz', 'foo' ];
+is_deeply [ $hash->keys ], [ 'foo', 'bar', 'baz' ];
 is $hash->{baz} + 2, 35;
 
 is $hash->{baz}->ref, undef;

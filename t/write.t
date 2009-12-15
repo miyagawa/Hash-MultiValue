@@ -17,5 +17,6 @@ is_deeply $hash, $new_hash;
 delete $hash->{foo};
 
 is_deeply [ sort keys %$hash ], [ qw(bar baz) ];
+is_deeply [ $hash->keys ], [ qw(bar baz) ];
 
 done_testing;

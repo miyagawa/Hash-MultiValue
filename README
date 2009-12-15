@@ -15,19 +15,18 @@ SYNOPSIS
       print $hash->{foo};        # 'b' (the last entry)
       my @foo = @{$hash->{foo}}; # ('a', 'b')
 
-      keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
+      # Object Oriented get
+      my $foo = $hash->get('foo'); # always 'b', independent of context
+      my @foo = $hash->getall('foo'); # ('a', 'b')
 
-      # get a plain hash. values are always array reference
+      keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
+      $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+
+      # get a plain hash. values are all array references
       %hash = $hash->as_hash;
 
-      # get a pair so you can pass to new()
+      # get a pair so you can pass it to new()
       @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
-
-      # Object Oriented get
-      my $v = $hash->get('foo'); # always 'b', independent of context
-      my @v = $hash->getall('foo'); # ('a', 'b')
-
-      $hash->keys; # ('foo', 'bar')
 
 DESCRIPTION
     Hash::MultiValue is an object that behaves like a hash reference that
