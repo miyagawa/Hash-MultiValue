@@ -30,11 +30,39 @@ SYNOPSIS
 
 DESCRIPTION
     Hash::MultiValue is an object that behaves like a hash reference that
-    contains multiple values per key, inspired by MultiDict of WebOb.
+    may contain multiple values per key, inspired by MultiDict of WebOb.
 
     It uses "tie" to reflect writes to a hash, and also a blessed objects
     with "overload" to return values so it does the right thing in
     stringification and array derefernces context.
+
+WHY THIS MODULE
+    In a typical web application, the request parameters (a.k.a CGI
+    parameters) can be single value or multi values. Using CGI.pm style
+    "param" is one way to deal with this problem (and it is good), but
+    there's another approach to convert parameters into a hash reference,
+    like Catalyst's "$c->req->parameters" does, and it sucks.
+
+    Why? Because the value could be just a scalar if there is one value and
+    an array ref if there are multiple, depending on *user input* rather
+    than *how you code it*. So your code should always be like this to be
+    defensive:
+
+      my $p = $c->req->parameters;
+      my @maybe_multi = ref $p->{m} eq 'ARRAY' ? @{$p->{m}} : ($p->{m});
+      my $must_single = ref $p->{m} eq 'ARRAY' ? $p->{m}->[0] : $p->{m};
+
+    Otherwise you'll get a random runtime exception of *Can't use string as
+    an ARRAY ref* or get stringified array *ARRAY(0xXXXXXXXXX)* as a string,
+    *depending on user input* and which is miserable and insecure.
+
+    This module provides a (black magic-ish, I admit) solution to this by
+    returning a tied hash, which value returns a blessed object that behaves
+    correctly when it's evaluated as a string/number (i.e. a single value)
+    or as an array reference (i.e. multiple values).
+
+    Yes, there is Tie::Hash::MultiValue and this module tries to solve
+    exactly the same problem, but in more DWIM fashion.
 
 NOTES ABOUT ref
     If your existing application uses "ref" to check if the hash value is
