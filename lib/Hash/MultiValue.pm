@@ -148,17 +148,19 @@ Hash::MultiValue - Store multiple values per key
   print $hash->{foo};        # 'b' (the last entry)
   my @foo = @{$hash->{foo}}; # ('a', 'b')
 
-  keys %$hash; # ('foo', 'bar') but not guaranteed to be ordered. See ->keys OO API
+  keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
 
-  # get a plain hash
+  # get a plain hash. values are always array reference
   %hash = $hash->as_hash;
-  %hash = %$hash; # same!
 
-  # Object Oriented
-  my $v = $hash->get('foo'); # 'b'
+  # get a pair so you can pass to new()
+  @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
+
+  # Object Oriented get
+  my $v = $hash->get('foo'); # always 'b', independent of context
   my @v = $hash->getall('foo'); # ('a', 'b')
 
-  $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+  $hash->keys; # ('foo', 'bar')
 
 =head1 DESCRIPTION
 
