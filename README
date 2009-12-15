@@ -31,8 +31,22 @@ DESCRIPTION
     Hash::MultiValue is an object that behaves like a hash reference that
     contains multiple values per key, inspired by MultiDict of WebOb.
 
-    It doesn't use "tie" but instead blessed objects with "overload" for
-    stringification and array derefernces etc.
+    It uses "tie" to reflect writes to a hash, and also a blessed objects
+    with "overload" to return values so it does the right thing in
+    stringification and array derefernces context.
+
+NOTES ABOUT ref
+    If your existing application uses "ref" to check if the hash value is
+    multiple, i.e.:
+
+      my $form = $req->parameters;
+      my @v = ref $form->{v} eq 'ARRAY' ? @{$form->{v}} : ($form->{v});
+
+    The "ref" call would return the string *Hash::MultiValue::Value* by
+    default, so your code always assumes that it is a single value element.
+    To avoid this, you can use UNIVERSAL::ref module, and then if
+    "$form->{v}" has multiple values "ref" would return "ARRAY" instead, and
+    your code would continue working.
 
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>

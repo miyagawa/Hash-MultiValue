@@ -4,61 +4,89 @@ use strict;
 use 5.008_001;
 our $VERSION = '0.01';
 
-use overload '%{}' => \&as_hashref, fallback => 1;
-
 sub new {
     my($class, @items) = @_;
-    bless \@items, $class;
-}
-
-sub iter {
-    my($self, $cb) = @_;
-    my @copy = @$self;
-    while (@copy) {
-        my($key, $value) = splice @copy, 0, 2;
-        $cb->($key, $value);
-    }
+    tie my %hash, 'Hash::MultiValue::Tied', @items;
+    bless \%hash, $class;
 }
 
 sub get {
     my($self, $key) = @_;
-    my $value;
-    $self->iter(sub { $value = $_[1] if $_[0] eq $key });
-    return $value;
+    scalar $self->{$key};
+}
+
+sub set {
+    my($self, $key, $value) = @_;
+    $self->{$key} = $value;
 }
 
 sub getall {
     my($self, $key) = @_;
-    my @values;
-    $self->iter(sub { push @values, $_[1] if $_[0] eq $key });
-    return @values;
+    @{$self->{$key}};
 }
 
 sub keys {
     my $self = shift;
-    my(@keys, %seen);
-    $self->iter(sub { push @keys, $_[0] unless $seen{$_[0]}++ });
-    return @keys;
+    keys %$self;
+}
+
+sub flatten {
+    my $self = shift;
+    tied(%$self)->flatten;
 }
 
 sub as_hash {
     my $self = shift;
-    my %hash;
-    $self->iter(sub {
-        my($key, $value) = @_;
-        unless (exists $hash{$key}) {
-            $hash{$key} = Hash::MultiValue::Value->new;
-        }
-        $hash{$key}->push($value);
-    });
-
-    return %hash;
+    %$self;
 }
 
 sub as_hashref {
     my $self = shift;
     my %hash = $self->as_hash;
     \%hash;
+}
+
+package Hash::MultiValue::Tied;
+use Tie::Hash;
+use base qw( Tie::ExtraHash );
+
+sub TIEHASH {
+    my($class, @items) = @_;
+
+    my %hash;
+    while (@items) {
+        my($key, $value) = splice @items, 0, 2;
+        my @values = ref $value eq 'ARRAY' ? @$value : ($value);
+        push @{$hash{$key}}, @values;
+    }
+
+    bless [ \%hash, {} ], $class;
+}
+
+sub FETCH {
+    my($self, $key) = @_;
+    my $v = $self->[0]->{$key};
+    return Hash::MultiValue::Value->new(@$v);
+}
+
+sub STORE {
+    my($self, $key, $value) = @_;
+    my @values = ref $value eq 'ARRAY' ? @$value : ($value);
+    $self->[0]->{$key} = \@values;
+}
+
+sub flatten {
+    my $self = shift;
+
+    my @list;
+    while (my($key, $value) = each %{$self->[0]}) {
+        my @values = ref $value eq 'ARRAY' ? @$value : ($value);
+        for my $v (@values) {
+            push @list, $key, $v;
+        }
+    }
+
+    return @list;
 }
 
 package Hash::MultiValue::Value;
@@ -71,7 +99,7 @@ sub ref {
 
 sub new {
     my $class = shift;
-    bless { value => [] }, $class;
+    bless { value => [@_] }, $class;
 }
 
 sub push {
@@ -132,8 +160,9 @@ Hash::MultiValue - Store multiple values per key
 Hash::MultiValue is an object that behaves like a hash reference that
 contains multiple values per key, inspired by MultiDict of WebOb.
 
-It doesn't use C<tie> but instead blessed objects with C<overload> for
-stringification and array derefernces etc.
+It uses C<tie> to reflect writes to a hash, and also a blessed objects
+with C<overload> to return values so it does the right thing in
+stringification and array derefernces context.
 
 =head1 NOTES ABOUT ref
 
