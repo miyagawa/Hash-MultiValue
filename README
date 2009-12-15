@@ -1,11 +1,38 @@
 NAME
-    Hash::MultiValue -
+    Hash::MultiValue - Store multiple values per key
 
 SYNOPSIS
       use Hash::MultiValue;
 
+      my $hash = Hash::MultiValue->new(
+          foo => 'a',
+          foo => 'b',
+          bar => 'baz',
+      );
+
+      # $hash is an object, but can be used as a hashref and DWIMs!
+
+      print $hash->{foo};        # 'b' (the last entry)
+      my @foo = @{$hash->{foo}}; # ('a', 'b')
+
+      keys %$hash; # ('foo', 'bar') but not guaranteed to be ordered. See ->keys OO API
+
+      # get a plain hash
+      %hash = $hash->as_hash;
+      %hash = %$hash; # same!
+
+      # Object Oriented
+      my $v = $hash->get('foo'); # 'b'
+      my @v = $hash->getall('foo'); # ('a', 'b')
+
+      $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+
 DESCRIPTION
-    Hash::MultiValue is
+    Hash::MultiValue is an object that behaves like a hash reference that
+    contains multiple values per key, inspired by MultiDict of WebOb.
+
+    It doesn't use "tie" but instead blessed objects with "overload" for
+    stringification and array derefernces etc.
 
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>
@@ -15,3 +42,5 @@ LICENSE
     under the same terms as Perl itself.
 
 SEE ALSO
+    <http://pythonpaste.org/webob/#multidict> Tie::Hash::MultiValue
+
