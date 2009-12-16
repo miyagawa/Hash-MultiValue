@@ -26,7 +26,7 @@ sub DESTROY {
 sub _iter {
     my($self, $cb) = @_;
     my $items = $items{refaddr $self};
-    my $i;
+    my $i = 0;
     while ($i < $#$items) {
         $cb->( @{$items}[ $i, $i+1 ] );
         $i += 2;
@@ -200,7 +200,7 @@ object.
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
 
 Thanks to Michael Peters for the suggestion to use inside-out objects
-instead of tie and to Aristotle Pegaltzis for various performance fixes.
+instead of tie and Aristotle Pegaltzis for various performance fixes.
 
 =head1 LICENSE
 
