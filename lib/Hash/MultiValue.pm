@@ -313,8 +313,8 @@ but obviously not sharing the reference. It's identical to:
 
   $copy = $hash->as_hashref;
 
-Creates a new plain (unblessed) hash reference where values are all
-single elements. It's identical to:
+Creates a new plain (unblessed) hash reference where a value is a
+single scalar. It's identical to:
 
   $copy = +{%$hash};
 
@@ -322,9 +322,9 @@ single elements. It's identical to:
 
   $mixed = $hash->as_hashref_mixed;
 
-Creates a new plain (unblessed) hash reference where values are single
-element, or an array ref when there are multiple values for a same
-key. Handy to create a hash reference that is often used in web
+Creates a new plain (unblessed) hash reference where the value is a
+single scalar, or an array ref when there are multiple values for a
+same key. Handy to create a hash reference that is often used in web
 application frameworks request objects such as L<Catalyst>.
 
 =item as_hashref_multi

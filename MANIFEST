@@ -1,4 +1,5 @@
 .gitignore
+benchmark.pl
 Changes
 inc/Module/Install.pm
 inc/Module/Install/AuthorTests.pm
@@ -25,6 +26,9 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
+t/hash.t
+t/multi.t
+t/write.t
 xt/perlcritic.t
 xt/pod.t
 xt/podspell.t
