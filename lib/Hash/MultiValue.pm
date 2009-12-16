@@ -43,7 +43,7 @@ sub add {
     my $self = shift;
     my $key = shift;
     my $this = refaddr $self;
-    $self->{$key} = $_[-1];
+    $self->{$key} = $_[-1] if @_;
     push @{$keys{$this}}, ($key) x @_;
     push @{$values{$this}}, @_;
 }
