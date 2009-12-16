@@ -54,7 +54,7 @@ sub remove {
 
     my @new;
     $self->_iter(sub { push @new, @_ if $_[0] ne $key });
-    @{$items{refaddr $self}} = @new;
+    $items{refaddr $self} = \@new;
 }
 
 sub keys {
