@@ -22,4 +22,8 @@ is_deeply [ $hash->keys ], [ qw(bar baz) ];
 $hash->add('bar'); # no-op add
 is $hash->{'bar'}, 'baz';
 
+$hash->clear;
+is_deeply $hash, {};
+isa_ok $hash, 'Hash::MultiValue';
+
 done_testing;

@@ -60,6 +60,14 @@ sub remove {
     @$v = @$v[@keep];
 }
 
+sub clear {
+    my $self = shift;
+    %$self = ();
+    my $this = refaddr $self;
+    $keys{$this} = [];
+    $values{$this} = [];
+}
+
 sub keys {
     my $self = shift;
     my %seen;
