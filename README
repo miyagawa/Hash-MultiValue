@@ -149,13 +149,20 @@ METHODS
 
           $copy = +{%$hash};
 
-    mixed
-          $mixed = $hash->mixed;
+    as_hashref_mixed
+          $mixed = $hash->as_hashref_mixed;
 
         Creates a new plain (unblessed) hash reference where values are
         single element, or an array ref when there are multiple values for a
         same key. Handy to create a hash reference that is often used in web
         application frameworks request objects such as Catalyst.
+
+    as_hashref_multi
+          $multi = $hash->as_hashref_multi
+
+        Creates a new plain (unblessed) hash reference where values are all
+        array references, regardless of there are single or multiple values
+        for a same key.
 
 WHY LAST NOT FIRST?
     You might wonder why this module uses the *last* value of the same key

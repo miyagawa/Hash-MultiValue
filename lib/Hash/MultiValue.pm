@@ -112,7 +112,7 @@ sub as_hashref {
     \%hash;
 }
 
-sub mixed {
+sub as_hashref_mixed {
     my $self = shift;
     my $this = refaddr $self;
     my $k = $keys{$this};
@@ -123,6 +123,18 @@ sub mixed {
     for (values %hash) {
         $_ = $_->[0] if 1 == @$_;
     }
+
+    \%hash;
+}
+
+sub as_hashref_multi {
+    my $self = shift;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+
+    my %hash;
+    push @{$hash{$k->[$_]}}, $v->[$_] for 0 .. $#$k;
 
     \%hash;
 }
@@ -306,14 +318,22 @@ single elements. It's identical to:
 
   $copy = +{%$hash};
 
-=item mixed
+=item as_hashref_mixed
 
-  $mixed = $hash->mixed;
+  $mixed = $hash->as_hashref_mixed;
 
 Creates a new plain (unblessed) hash reference where values are single
 element, or an array ref when there are multiple values for a same
 key. Handy to create a hash reference that is often used in web
 application frameworks request objects such as L<Catalyst>.
+
+=item as_hashref_multi
+
+  $multi = $hash->as_hashref_multi
+
+Creates a new plain (unblessed) hash reference where values are all
+array references, regardless of there are single or multiple values
+for a same key.
 
 =back
 

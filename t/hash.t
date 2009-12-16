@@ -22,12 +22,21 @@ my $hash = Hash::MultiValue->new(
 }
 
 {
-    my $foo = $hash->mixed;
+    my $foo = $hash->as_hashref_mixed;
     is ref $foo, 'HASH';
     is scalar keys %$foo, 3;
     is ref $foo->{foo}, 'ARRAY';
     is_deeply $foo->{foo}, [ 'a', 'b' ];
     is $foo->{bar}, 'baz';
+}
+
+{
+    my $foo = $hash->as_hashref_multi;
+    is ref $foo, 'HASH';
+    is scalar keys %$foo, 3;
+    is ref $foo->{foo}, 'ARRAY';
+    is_deeply $foo->{foo}, [ 'a', 'b' ];
+    is_deeply $foo->{bar}, [ 'baz' ];
 }
 
 done_testing;
