@@ -176,6 +176,22 @@ This module does not use C<tie> or L<overload> and is quite fast.
 Yes, there is L<Tie::Hash::MultiValue> and this module tries to solve
 exactly the same problem, but using a different implementation.
 
+=head1 UPDATING CONTENTS
+
+When you update the content of the hash, B<DO NOT UPDATE> using the
+hash reference interface: this won't write through to the tracking
+object.
+
+  my $hash = Hash::MultiValue->new(...);
+
+  # WRONG
+  $hash->{foo} = 'bar';
+  delete $hash->{foo};
+
+  # Correct
+  $hash->add(foo => 'bar');
+  $hash->remove('foo');
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
