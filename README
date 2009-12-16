@@ -187,6 +187,17 @@ NOTES ON ref
     fail. To avoid that you should call "as_hashref" to get a *finalized* (=
     non-blessed) hash reference.
 
+    You can also use UNIVERSAL::ref to make it work magically:
+
+      use Hash::MultiValue;
+
+      {
+        package Hash::MultiValue; # You need this
+        use UNIVERSAL::ref;
+      }
+
+    and then all "ref" calls to Hash::MultiValue objects will return *HASH*.
+
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>
 
