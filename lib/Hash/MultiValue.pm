@@ -104,7 +104,8 @@ sub keys {
 
 sub as_hash {
     my $self = shift;
-    %{$self->[0]};
+    my %hash = %{$self->[0]};
+    map { $_ => $hash{$_}->[-1] } keys %hash;
 }
 
 sub flatten {
@@ -151,8 +152,9 @@ Hash::MultiValue - Store multiple values per key
   keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
   $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
-  # get a plain hash. values are all array references
-  %hash = $hash->as_hash;
+  # get a plain hash. values are all single element
+  %hash   = $hash->as_hash;
+  $hash_r = $hash->as_hashref;
 
   # get a pair so you can pass it to new()
   @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')

@@ -17,4 +17,7 @@ is_deeply [ sort keys %$hash ], [ 'bar', 'baz', 'foo' ];
 is_deeply [ $hash->keys ], [ 'foo', 'bar', 'baz' ];
 is $hash->{baz} + 2, 35;
 
+my $r = $hash->as_hashref;
+is_deeply $r, { foo => 'b', bar => 'baz', baz => 33 };
+
 done_testing;
