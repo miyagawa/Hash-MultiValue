@@ -19,4 +19,7 @@ $hash->remove('foo');
 is_deeply [ sort keys %$hash ], [ qw(bar baz) ];
 is_deeply [ $hash->keys ], [ qw(bar baz) ];
 
+$hash->add('bar'); # no-op add
+is $hash->{'bar'}, 'baz';
+
 done_testing;
