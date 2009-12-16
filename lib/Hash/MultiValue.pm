@@ -8,12 +8,12 @@ use Scalar::Util qw(refaddr);
 my %items;
 
 sub new {
-    my($class, @items) = @_;
+    my $class = shift;
 
-    my %hash = @items; # yay, this should keep the last value
+    my %hash = @_; # yay, this should keep the last value
 
     my $self = bless \%hash, $class;
-    $items{refaddr $self} = \@items;
+    $items{refaddr $self} = \@_;
 
     $self;
 }
