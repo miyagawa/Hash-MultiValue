@@ -53,7 +53,7 @@ sub get_all {
     my($self, $key) = @_;
     my $this = refaddr $self;
     my $k = $keys{$this};
-    @{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k];
+    (@{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k]);
 }
 
 sub add {
@@ -154,12 +154,6 @@ Hash::MultiValue - Store multiple values per key
   keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
   $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
-  # get a plain hash where values may or may not be an array ref
-  $copy = $hash->as_hashref;
-
-  # get a pair so you can pass it to new()
-  @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
-
 =head1 DESCRIPTION
 
 Hash::MultiValue is an object (and a plain hash reference) that may
@@ -220,6 +214,104 @@ object.
   # Correct
   $hash->add(foo => 'bar');
   $hash->remove('foo');
+
+See below for the list of updating methods.
+
+=head1 METHODS
+
+=over 4
+
+=item new
+
+  $hash = Hash::MultiValue->new(@pairs);
+
+Creates a new object that can be treated as a plain hash reference as well.
+
+=item get
+
+  $value = $hash->get($key);
+  $value = $hash->{$key};
+
+Returns a single value for the given C<$key>. If there are multiple
+values, the last one (not first one) is returned. See below for why.
+
+Note that this B<always> returns the single element as a scalar,
+regardless of its context, unlike CGI.pm's C<param> method etc.
+
+=item get_one
+
+  $value = $hash->get_one($key);
+
+Returns a single value for the given C<$key>. This method B<croaks> if
+there is no value or multiple values associated with the key, so you
+should wrap it with eval or modules like L<Try::Tiny>.
+
+=item get_all
+
+  @values = $hash->get_all($key);
+
+Returns a list of values for the given C<$key>. This method B<always>
+returns a list regardless of its context. If there is no value
+attached, the result will be an empty list.
+
+=item keys
+
+  @keys = $hash->keys;
+
+Returns a list of keys, in an ordered way.
+
+=item add
+
+  $hash->add($key, $value [, $value ... ]);
+
+Appends a new value to the given C<$key>. This updates the value of
+C<< $hash->{$key} >> as well so it always points to the last value.
+
+=item remove
+
+  $hash->remove($key);
+
+Removes a key and associated values for the given C<$key>.
+
+=item clear
+
+  $hash->clear;
+
+Clears the hash to be an empty hash reference.
+
+=item flatten
+
+  @pairs = $hash->flatten;
+
+Gets pairs of keys and values. This should be exactly the same pairs
+which are given to C<new> method unless you updated the data.
+
+=item clone
+
+  $new = $hash->clone;
+
+Creates a new Hash::MultiValue object that represents the same data,
+but obviously not sharing the reference. It's identical to:
+
+  $new = Hash::MultiValue->new($hash->flatten);
+
+=item as_hashref
+
+  $copy = $hash->as_hashref;
+
+Creates a new plain (unblessed) hash reference where values are all
+single elements.
+
+=item mixed
+
+  $mixed = $hash->mixed;
+
+Creates a new plain (unblessed) hash reference where values are single
+element, or an array ref when there are multiple values for a same
+key. Handy to create a hash reference that is often used in web
+application frameworks request objects such as L<Catalyst>.
+
+=back
 
 =head1 WHY LAST NOT FIRST?
 
