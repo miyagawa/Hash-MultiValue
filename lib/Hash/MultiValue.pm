@@ -56,8 +56,7 @@ sub TIEHASH {
     my(%hash, @keys, %seen);
     while (@items) {
         my($key, $value) = splice @items, 0, 2;
-        my @values = ref $value eq 'ARRAY' ? @$value : ($value);
-        push @{$hash{$key}}, @values;
+        push @{$hash{$key}}, $value;
         push @keys, $key unless $seen{$key}++;
     }
 
