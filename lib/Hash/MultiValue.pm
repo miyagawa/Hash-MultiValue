@@ -188,6 +188,27 @@ object.
   $hash->add(foo => 'bar');
   $hash->remove('foo');
 
+=head1 WHY LAST NOT FIRST?
+
+You might wonder why this module uses the I<last> value of the same
+key instead of I<first>. There's no strong reasoning on this decision
+since one is as arbitrary as the other, but this is more consistent to
+what Perl does:
+
+  sub x {
+      return ('a', 'b', 'c');
+  }
+
+  my $x = x(); # $x = 'c'
+
+  my %a = ( a => 1 );
+  my %b = ( a => 2 );
+
+  my %m = (%a, %b); # $m{a} = 2
+
+When perl gets a list in a scalar context it gets the last entry. Also
+if you merge hashes having a same key, the last one wins.
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
