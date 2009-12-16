@@ -5,32 +5,26 @@ use 5.008_001;
 our $VERSION = '0.01';
 
 use Scalar::Util qw(refaddr);
-my %items;
+my %keys;
+my %values;
 
 sub new {
     my $class = shift;
+    my $self = bless { @_ }, $class;
 
-    my %hash = @_; # yay, this should keep the last value
+    my $this = refaddr $self;
+    my $k = $keys{$this} = [];
+    my $v = $values{$this} = [];
 
-    my $self = bless \%hash, $class;
-    $items{refaddr $self} = \@_;
+    push @{ $_ & 1 ? $v : $k }, $_[$_] for 0 .. $#_;
 
     $self;
 }
 
 sub DESTROY {
-    my $self = shift;
-    delete $items{refaddr $self};
-}
-
-sub _iter {
-    my($self, $cb) = @_;
-    my $items = $items{refaddr $self};
-    my $i = 0;
-    while ($i < $#$items) {
-        $cb->( @{$items}[ $i, $i+1 ] );
-        $i += 2;
-    }
+    my $this = refaddr shift;
+    delete $keys{$this};
+    delete $values{$this};
 }
 
 sub get {
@@ -40,64 +34,62 @@ sub get {
 
 sub get_all {
     my($self, $key) = @_;
-    my @values;
-    $self->_iter(sub { push @values, $_[1] if $_[0] eq $key });
-    (@values);
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    @{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k];
 }
 
 sub add {
     my $self = shift;
     my $key = shift;
+    my $this = refaddr $self;
     $self->{$key} = $_[-1];
-    push @{$items{refaddr $self}}, $key, @_;
+    push @{$keys{$this}}, ($key) x @_;
+    push @{$values{$this}}, @_;
 }
 
 sub remove {
     my($self, $key) = @_;
     delete $self->{$key};
 
-    my @new;
-    $self->_iter(sub { push @new, @_ if $_[0] ne $key });
-    $items{refaddr $self} = \@new;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+    my @keep = grep { $key ne $k->[$_] } 0 .. $#$k;
+    @$k = @$k[@keep];
+    @$v = @$v[@keep];
 }
 
 sub keys {
     my $self = shift;
-    my(@keys, %seen);
-    $self->_iter(sub { push @keys, $_[0] unless $seen{$_[0]}++ });
-    (@keys);
+    my %seen;
+    grep { !$seen{$_}++ } @{$keys{refaddr $self}};
 }
 
 sub flatten {
     my $self = shift;
-    @{$items{refaddr $self}};
-}
-
-sub as_hash {
-    my $self = shift;
-
-    my %hash;
-    $self->_iter(sub {
-        my($key, $value) = @_;
-        if (exists $hash{$key}) {
-            if (ref $hash{$key} eq 'ARRAY') {
-                push @{$hash{$key}}, $value;
-            } else {
-                $hash{$key} = [ $hash{$key}, $value ];
-            }
-        } else {
-            $hash{$key} = $value;
-        }
-    });
-
-    %hash;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+    map { $k->[$_], $v->[$_] } 0 .. $#$k;
 }
 
 sub as_hashref {
     my $self = shift;
-    my %hash = $self->as_hash;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+
+    my %hash;
+    push @{$hash{$k->[$_]}}, $v->[$_] for 0 .. $#$k;
+    for (values %hash) {
+        $_ = $_->[0] if 1 == @$_;
+    }
+
     \%hash;
 }
+
+sub as_hash { %{ $_[0]->as_hashref } }
 
 1;
 __END__
