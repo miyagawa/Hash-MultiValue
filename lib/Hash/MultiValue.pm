@@ -76,6 +76,12 @@ sub flatten {
 
 sub as_hashref {
     my $self = shift;
+    my %hash = %$self;
+    \%hash;
+}
+
+sub mixed {
+    my $self = shift;
     my $this = refaddr $self;
     my $k = $keys{$this};
     my $v = $values{$this};
@@ -88,8 +94,6 @@ sub as_hashref {
 
     \%hash;
 }
-
-sub as_hash { %{ $_[0]->as_hashref } }
 
 1;
 __END__
@@ -113,7 +117,6 @@ Hash::MultiValue - Store multiple values per key
   );
 
   # $hash is an object, but can be used as a hashref and DWIMs!
-
   my $foo = $hash->{foo};         # 'b' (the last entry)
   my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
   my @foo = $hash->get_all('foo'); # ('a', 'b')
@@ -122,7 +125,7 @@ Hash::MultiValue - Store multiple values per key
   $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
   # get a plain hash where values may or may not be an array ref
-  %hash = $hash->as_hash;
+  $copy = $hash->as_hashref;
 
   # get a pair so you can pass it to new()
   @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
@@ -209,12 +212,27 @@ what Perl does:
 When perl gets a list in a scalar context it gets the last entry. Also
 if you merge hashes having a same key, the last one wins.
 
+=head1 NOTES ON ref
+
+If you pass this MultiValue hash object to some upstream functions
+that you can't control and does things like:
+
+  if (ref $args eq 'HASH') {
+      ...
+  }
+
+because this is a blessed hash reference it doesn't match and would
+fail. To avoid that you oshould call C<as_hashref> to I<finalize> to a
+plain hash reference.
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
 
+Aristotle Pegaltzis
+
 Thanks to Michael Peters for the suggestion to use inside-out objects
-instead of tie and Aristotle Pegaltzis for various performance fixes.
+instead of tie.
 
 =head1 LICENSE
 

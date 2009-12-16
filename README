@@ -11,7 +11,6 @@ SYNOPSIS
       );
 
       # $hash is an object, but can be used as a hashref and DWIMs!
-
       my $foo = $hash->{foo};         # 'b' (the last entry)
       my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
       my @foo = $hash->get_all('foo'); # ('a', 'b')
@@ -20,7 +19,7 @@ SYNOPSIS
       $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
       # get a plain hash where values may or may not be an array ref
-      %hash = $hash->as_hash;
+      $copy = $hash->as_hashref;
 
       # get a pair so you can pass it to new()
       @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
@@ -80,11 +79,45 @@ UPDATING CONTENTS
       $hash->add(foo => 'bar');
       $hash->remove('foo');
 
+WHY LAST NOT FIRST?
+    You might wonder why this module uses the *last* value of the same key
+    instead of *first*. There's no strong reasoning on this decision since
+    one is as arbitrary as the other, but this is more consistent to what
+    Perl does:
+
+      sub x {
+          return ('a', 'b', 'c');
+      }
+
+      my $x = x(); # $x = 'c'
+
+      my %a = ( a => 1 );
+      my %b = ( a => 2 );
+
+      my %m = (%a, %b); # $m{a} = 2
+
+    When perl gets a list in a scalar context it gets the last entry. Also
+    if you merge hashes having a same key, the last one wins.
+
+NOTES ON ref
+    If you pass this MultiValue hash object to some upstream functions that
+    you can't control and does things like:
+
+      if (ref $args eq 'HASH') {
+          ...
+      }
+
+    because this is a blessed hash reference it doesn't match and would
+    fail. To avoid that you oshould call "as_hashref" to *finalize* to a
+    plain hash reference.
+
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>
 
+    Aristotle Pegaltzis
+
     Thanks to Michael Peters for the suggestion to use inside-out objects
-    instead of tie and Aristotle Pegaltzis for various performance fixes.
+    instead of tie.
 
 LICENSE
     This library is free software; you can redistribute it and/or modify it
