@@ -8,12 +8,12 @@ use Scalar::Util qw(refaddr);
 my %items;
 
 sub new {
-    my($class, @items) = @_;
+    my $class = shift;
 
-    my %hash = @items; # yay, this should keep the last value
+    my %hash = @_; # yay, this should keep the last value
 
     my $self = bless \%hash, $class;
-    $items{refaddr $self} = \@items;
+    $items{refaddr $self} = \@_;
 
     $self;
 }
@@ -24,11 +24,9 @@ sub DESTROY {
 }
 sub _iter {
     my($self, $cb) = @_;
-    my @copy = @{$items{refaddr $self}};
-    while (@copy) {
-        my @pairs = splice @copy, 0, 2;
-        $cb->(@pairs);
-    }
+    my $items = $items{refaddr $self};
+    my $i;
+    $cb->( @{$items}[ $i-1, $i ] ) while ++$i < $#$items;
 }
 
 sub get {
@@ -44,9 +42,10 @@ sub get_all {
 }
 
 sub add {
-    my($self, $key, $value) = @_;
-    $self->{$key} = $value; # this should be the value since it's more "last"
-    push @{$items{refaddr $self}}, $key, $value;
+    my $self = shift;
+    my $key = shift;
+    $self->{$key} = @_[-1];
+    push @{$items{refaddr $self}}, $key, @_;
 }
 
 sub remove {
@@ -55,7 +54,7 @@ sub remove {
 
     my @new;
     $self->_iter(sub { push @new, @_ if $_[0] ne $key });
-    @{$items{refaddr $self}} = @new;
+    $items{refaddr $self} = \@new;
 }
 
 sub keys {
