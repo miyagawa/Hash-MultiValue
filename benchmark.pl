@@ -17,7 +17,6 @@ timethese 0, {
         $form->{14} = 1000;
         delete $form->{14};
         my @values = @{$form}{1..10};
-        "@values";
     },
     multivalue => sub {
         my $form = Hash::MultiValue->new(@form);
@@ -25,6 +24,12 @@ timethese 0, {
         $form->{14} = 1000;
         delete $form->{14};
         my @values = @{$form}{1..10};
-        "@values";
+    },
+    multivalue_oo => sub {
+        my $form = Hash::MultiValue->new(@form);
+        my @k = $form->keys;
+        $form->add(14 => 1000);
+        $form->remove(14);
+        my @values = map $form->get($_), 1..10;
     },
 };
