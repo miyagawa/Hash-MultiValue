@@ -222,8 +222,8 @@ that you can't control and does things like:
   }
 
 because this is a blessed hash reference it doesn't match and would
-fail. To avoid that you oshould call C<as_hashref> to I<finalize> to a
-plain hash reference.
+fail. To avoid that you should call C<as_hashref> to get a
+I<finalized> (= non-blessed) hash reference.
 
 =head1 AUTHOR
 
