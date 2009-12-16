@@ -24,11 +24,9 @@ sub DESTROY {
 }
 sub _iter {
     my($self, $cb) = @_;
-    my @copy = @{$items{refaddr $self}};
-    while (@copy) {
-        my @pairs = splice @copy, 0, 2;
-        $cb->(@pairs);
-    }
+    my $items = $items{refaddr $self};
+    my $i;
+    $cb->( @{$items}[ $i-1, $i ] ) while ++$i < $#$items;
 }
 
 sub get {
