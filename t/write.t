@@ -8,8 +8,7 @@ my $hash = Hash::MultiValue->new(
     bar => 'baz',
 );
 
-#$hash->{baz} = 33;
-$hash->set(baz => 33);
+$hash->add(baz => 33);
 is $hash->{baz}, 33;
 
 my $new_hash = Hash::MultiValue->new($hash->flatten);

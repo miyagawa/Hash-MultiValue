@@ -5,33 +5,36 @@ use 5.008_001;
 our $VERSION = '0.01';
 
 use Scalar::Util qw(refaddr);
-my %obj;
+my %items;
 
 sub new {
     my($class, @items) = @_;
 
-    my(%hash, %mhash, @keys, %seen);
-    while (@items) {
-        my($key, $value) = splice @items, 0, 2;
-        $hash{$key} = $value;
-        push @{$mhash{$key}}, $value;
-        push @keys, $key unless $seen{$key}++;
-    }
+    my %hash = @items; # yay, this should keep the last value
 
     my $self = bless \%hash, $class;
-    $obj{refaddr $self} = [ \%mhash, \@keys ];
+    $items{refaddr $self} = \@items;
 
     $self;
 }
 
 sub DESTROY {
     my $self = shift;
-    delete $obj{refaddr $self};
+    delete $items{refaddr $self};
 }
 
-sub obj {
+sub _iter {
+    my($self, $cb) = @_;
+    my @copy = @{$items{refaddr $self}};
+    while (@copy) {
+        my @pairs = splice @copy, 0, 2;
+        $cb->(@pairs);
+    }
+}
+
+sub items {
     my $self = shift;
-    $obj{refaddr $self};
+    $items{refaddr $self};
 }
 
 sub get {
@@ -39,61 +42,58 @@ sub get {
     $self->{$key};
 }
 
-sub set {
+sub getall {
+    my($self, $key) = @_;
+    my @values;
+    $self->_iter(sub { push @values, $_[1] if $_[0] eq $key });
+    (@values);
+}
+
+sub add {
     my($self, $key, $value) = @_;
-    $self->{$key} = $value;
-
-    my $obj = $self->obj;
-    $obj->[0]->{$key} = $value;
-
-    for my $k (@{$obj->[1]}) {
-        return if $key eq $k;
-    }
-    push @{$obj->[1]}, $key;
+    $self->{$key} = $value; # this should be the value since it's more "last"
+    push @{$self->items}, $key, $value;
 }
 
 sub remove {
     my($self, $key) = @_;
     delete $self->{$key};
 
-    my $obj = $self->obj;
-    delete $obj->[0]->{$key};
-
     my @new;
-    for my $k (@{$obj->[1]}) {
-        push @new, $k if $key ne $k;
-    }
-    $obj->[1] = \@new;
-}
-
-sub getall {
-    my($self, $key) = @_;
-    (@{$self->obj->[0]->{$key}});
+    $self->_iter(sub { push @new, @_ if $_[0] ne $key });
+    @{$self->items} = @new;
 }
 
 sub keys {
     my $self = shift;
-    @{$self->obj->[1]};
+    my(@keys, %seen);
+    $self->_iter(sub { push @keys, $_[0] unless $seen{$_[0]}++ });
+    (@keys);
 }
 
 sub flatten {
     my $self = shift;
-    my %mhash = %{$self->obj->[0]};
-
-    my @list;
-    while (my($key, $value) = each %mhash) {
-        my @values = ref $value eq 'ARRAY' ? @$value : ($value);
-        for my $v (@values) {
-            push @list, $key, $v;
-        }
-    }
-
-    return @list;
+    @{$self->items};
 }
 
 sub as_hash {
     my $self = shift;
-    %{$self->obj->[0]}; # dclone?
+
+    my %hash;
+    $self->_iter(sub {
+        my($key, $value) = @_;
+        if (exists $hash{$key}) {
+            if (ref $hash{$key} eq 'ARRAY') {
+                push @{$hash{$key}}, $value;
+            } else {
+                $hash{$key} = [ $hash{$key}, $value ];
+            }
+        } else {
+            $hash{$key} = $value;
+        }
+    });
+
+    %hash;
 }
 
 sub as_hashref {
@@ -132,7 +132,7 @@ Hash::MultiValue - Store multiple values per key
   keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
   $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
-  # get a plain hash. values are all array references
+  # get a plain hash where values may or may not be an array ref
   %hash = $hash->as_hash;
 
   # get a pair so you can pass it to new()
