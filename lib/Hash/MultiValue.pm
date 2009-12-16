@@ -68,6 +68,11 @@ sub clear {
     $values{$this} = [];
 }
 
+sub clone {
+    my $self = shift;
+    ref($self)->new($self->flatten);
+}
+
 sub keys {
     my $self = shift;
     my %seen;
