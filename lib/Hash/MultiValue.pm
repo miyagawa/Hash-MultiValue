@@ -10,6 +10,8 @@ use Scalar::Util qw(refaddr);
 my %keys;
 my %values;
 
+sub ref { 'HASH' }
+
 sub new {
     my $class = shift;
     my $self = bless { @_ }, $class;
@@ -346,6 +348,17 @@ that you can't control and does things like:
 because this is a blessed hash reference it doesn't match and would
 fail. To avoid that you should call C<as_hashref> to get a
 I<finalized> (= non-blessed) hash reference.
+
+You can also use UNIVERSAL::ref to make it work magically:
+
+  use Hash::MultiValue;
+
+  {
+    package Hash::MultiValue; # You need this
+    use UNIVERSAL::ref;
+  }
+
+and then all C<ref> calls to Hash::MultiValue objects will return I<HASH>.
 
 =head1 AUTHOR
 
