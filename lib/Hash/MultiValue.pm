@@ -4,115 +4,84 @@ use strict;
 use 5.008_001;
 our $VERSION = '0.01';
 
+use Scalar::Util qw(refaddr);
+my %obj;
+
 sub new {
     my($class, @items) = @_;
-    tie my %hash, 'Hash::MultiValue::Tied', @items;
-    bless \%hash, $class;
+
+    my(%hash, %mhash, @keys, %seen);
+    while (@items) {
+        my($key, $value) = splice @items, 0, 2;
+        $hash{$key} = $value;
+        push @{$mhash{$key}}, $value;
+        push @keys, $key unless $seen{$key}++;
+    }
+
+    my $self = bless \%hash, $class;
+    $obj{refaddr $self} = [ \%mhash, \@keys ];
+
+    $self;
+}
+
+sub DESTROY {
+    my $self = shift;
+    delete $obj{refaddr $self};
+}
+
+sub obj {
+    my $self = shift;
+    $obj{refaddr $self};
 }
 
 sub get {
     my($self, $key) = @_;
-    scalar $self->{$key};
+    $self->{$key};
 }
 
 sub set {
     my($self, $key, $value) = @_;
     $self->{$key} = $value;
-}
 
-sub getall {
-    my($self, $key) = @_;
-    tied(%$self)->getall($key);
-}
+    my $obj = $self->obj;
+    $obj->[0]->{$key} = $value;
 
-sub keys {
-    my $self = shift;
-    tied(%$self)->keys;
-}
-
-sub flatten {
-    my $self = shift;
-    tied(%$self)->flatten;
-}
-
-sub as_hash {
-    my $self = shift;
-    tied(%$self)->as_hash;
-}
-
-sub as_hashref {
-    my $self = shift;
-    my %hash = $self->as_hash;
-    \%hash;
-}
-
-package Hash::MultiValue::Tied;
-use Tie::Hash;
-use base qw( Tie::ExtraHash );
-
-sub TIEHASH {
-    my($class, @items) = @_;
-
-    my(%hash, @keys, %seen);
-    while (@items) {
-        my($key, $value) = splice @items, 0, 2;
-        my @values = ref $value eq 'ARRAY' ? @$value : ($value);
-        push @{$hash{$key}}, @values;
-        push @keys, $key unless $seen{$key}++;
-    }
-
-    bless [ \%hash, \@keys ], $class;
-}
-
-sub FETCH {
-    my($self, $key) = @_;
-    my $v = $self->[0]->{$key};
-    return $v->[-1];
-}
-
-sub getall {
-    my($self, $key) = @_;
-    my $v = $self->[0]->{$key};
-    @$v;
-}
-
-sub STORE {
-    my($self, $key, $value) = @_;
-    my @values = ref $value eq 'ARRAY' ? @$value : ($value);
-    $self->[0]->{$key} = \@values;
-
-    for my $k (@{$self->[1]}) {
+    for my $k (@{$obj->[1]}) {
         return if $key eq $k;
     }
-    push @{$self->[1]}, $key;
+    push @{$obj->[1]}, $key;
 }
 
-sub DELETE {
+sub remove {
     my($self, $key) = @_;
-    delete $self->[0]->{$key};
+    delete $self->{$key};
+
+    my $obj = $self->obj;
+    delete $obj->[0]->{$key};
 
     my @new;
-    for my $k (@{$self->[1]}) {
+    for my $k (@{$obj->[1]}) {
         push @new, $k if $key ne $k;
     }
-    $self->[1] = \@new;
+    $obj->[1] = \@new;
+}
+
+sub getall {
+    my($self, $key) = @_;
+    (@{$self->obj->[0]->{$key}});
 }
 
 sub keys {
     my $self = shift;
-    @{$self->[1]};
-}
-
-sub as_hash {
-    my $self = shift;
-    %{$self->[0]};
+    @{$self->obj->[1]};
 }
 
 sub flatten {
     my $self = shift;
+    my %mhash = %{$self->obj->[0]};
 
     my @list;
-    while (my($key, $value) = each %{$self->[0]}) {
+    while (my($key, $value) = each %mhash) {
         my @values = ref $value eq 'ARRAY' ? @$value : ($value);
         for my $v (@values) {
             push @list, $key, $v;
@@ -120,6 +89,17 @@ sub flatten {
     }
 
     return @list;
+}
+
+sub as_hash {
+    my $self = shift;
+    %{$self->obj->[0]}; # dclone?
+}
+
+sub as_hashref {
+    my $self = shift;
+    my %hash = $self->as_hash;
+    \%hash;
 }
 
 1;
