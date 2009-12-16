@@ -11,7 +11,7 @@ my $hash = Hash::MultiValue->new(
 
 is "$hash->{foo}", 'b';
 is ref $hash->{foo}, '';
-my @foo = $hash->getall('foo');
+my @foo = $hash->get_all('foo');
 is_deeply \@foo, [ 'a', 'b' ];
 is_deeply [ sort keys %$hash ], [ 'bar', 'baz', 'foo' ];
 is_deeply [ $hash->keys ], [ 'foo', 'bar', 'baz' ];

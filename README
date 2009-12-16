@@ -14,23 +14,20 @@ SYNOPSIS
 
       my $foo = $hash->{foo};         # 'b' (the last entry)
       my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
-      my @foo = $hash->getall('foo'); # ('a', 'b')
+      my @foo = $hash->get_all('foo'); # ('a', 'b')
 
       keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
       $hash->keys; # ('foo', 'bar') guaranteed to be ordered
 
-      # get a plain hash. values are all single element
-      %hash   = $hash->as_hash;
-      $hash_r = $hash->as_hashref;
+      # get a plain hash where values may or may not be an array ref
+      %hash = $hash->as_hash;
 
       # get a pair so you can pass it to new()
       @pairs = $hash->flatten; # ('foo' => 'a', 'foo' => 'b', 'bar' => 'baz')
 
 DESCRIPTION
-    Hash::MultiValue is an object that behaves like a hash reference that
-    may contain multiple values per key, inspired by MultiDict of WebOb.
-
-    It uses "tie" to make the object behaves also like a hash reference.
+    Hash::MultiValue is an object (and a plain hash reference) that may
+    contain multiple values per key, inspired by MultiDict of WebOb.
 
 WHY THIS MODULE
     In a typical web application, the request parameters (a.k.a CGI
@@ -52,13 +49,21 @@ WHY THIS MODULE
     an ARRAY ref* or get stringified array *ARRAY(0xXXXXXXXXX)* as a string,
     *depending on user input* and which is miserable and insecure.
 
-    This module provides a solution to this by returning a tied hash which
-    always behaves like an element with a single hash, but as well as an
-    explicit API call like "get" and "getall" to return single or multiple
-    values.
+    This module provides a solution to this by making it behave like a
+    single value hash reference, but also has an API to get multiple values
+    on demand, explicitly.
+
+HOW THIS WORKS
+    The object returned by "new" is a blessed hash reference that contains
+    the last entry of the same key if there are multiple values, but it also
+    keeps the original pair state in the object tracker (a.k.a inside out
+    objects) and allows you to access the original pairs and multiple values
+    via the method calls, such as "get_all" or "flatten".
+
+    This module does not use "tie" or overload and is quite fast.
 
     Yes, there is Tie::Hash::MultiValue and this module tries to solve
-    exactly the same problem, but in a slightly different API.
+    exactly the same problem, but using a different implementation.
 
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>

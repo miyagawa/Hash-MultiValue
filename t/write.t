@@ -8,13 +8,13 @@ my $hash = Hash::MultiValue->new(
     bar => 'baz',
 );
 
-$hash->{baz} = 33;
+$hash->add(baz => 33);
 is $hash->{baz}, 33;
 
 my $new_hash = Hash::MultiValue->new($hash->flatten);
 is_deeply $hash, $new_hash;
 
-delete $hash->{foo};
+$hash->remove('foo');
 
 is_deeply [ sort keys %$hash ], [ qw(bar baz) ];
 is_deeply [ $hash->keys ], [ qw(bar baz) ];
