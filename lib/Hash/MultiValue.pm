@@ -199,6 +199,9 @@ object.
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
 
+Thanks to Michael Peters for the suggestion to use inside-out objects
+instead of tie and to Aristotle Pegaltzis for various performance fixes.
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
