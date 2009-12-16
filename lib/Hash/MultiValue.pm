@@ -42,9 +42,10 @@ sub get_all {
 }
 
 sub add {
-    my($self, $key, $value) = @_;
-    $self->{$key} = $value; # this should be the value since it's more "last"
-    push @{$items{refaddr $self}}, $key, $value;
+    my $self = shift;
+    my $key = shift;
+    $self->{$key} = @_[-1];
+    push @{$items{refaddr $self}}, $key, @_;
 }
 
 sub remove {
