@@ -37,7 +37,7 @@ sub get {
     $self->{$key};
 }
 
-sub getall {
+sub get_all {
     my($self, $key) = @_;
     my @values;
     $self->_iter(sub { push @values, $_[1] if $_[0] eq $key });
@@ -122,7 +122,7 @@ Hash::MultiValue - Store multiple values per key
 
   my $foo = $hash->{foo};         # 'b' (the last entry)
   my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
-  my @foo = $hash->getall('foo'); # ('a', 'b')
+  my @foo = $hash->get_all('foo'); # ('a', 'b')
 
   keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
   $hash->keys; # ('foo', 'bar') guaranteed to be ordered
@@ -135,10 +135,8 @@ Hash::MultiValue - Store multiple values per key
 
 =head1 DESCRIPTION
 
-Hash::MultiValue is an object that behaves like a hash reference that
-may contain multiple values per key, inspired by MultiDict of WebOb.
-
-It uses C<tie> to make the object behaves also like a hash reference.
+Hash::MultiValue is an object (and a plain hash reference) that may
+contain multiple values per key, inspired by MultiDict of WebOb.
 
 =head1 WHY THIS MODULE
 
@@ -162,13 +160,22 @@ as an ARRAY ref> or get stringified array I<ARRAY(0xXXXXXXXXX)> as a
 string, I<depending on user input> and which is miserable and
 insecure.
 
-This module provides a solution to this by returning a tied hash which
-always behaves like an element with a single hash, but as well as an
-explicit API call like C<get> and C<getall> to return single or
-multiple values.
+This module provides a solution to this by making it behave like a
+single value hash reference, but also has an API to get multiple
+values on demand, explicitly.
+
+=head1 HOW THIS WORKS
+
+The object returned by C<new> is a blessed hash reference that
+contains the last entry of the same key if there are multiple values,
+but it also keeps the original pair state in the object tracker (a.k.a
+inside out objects) and allows you to access the original pairs and
+multiple values via the method calls, such as C<get_all> or C<flatten>.
+
+This module does not use C<tie> or L<overload> and is quite fast.
 
 Yes, there is L<Tie::Hash::MultiValue> and this module tries to solve
-exactly the same problem, but in a slightly different API.
+exactly the same problem, but using a different implementation.
 
 =head1 AUTHOR
 
