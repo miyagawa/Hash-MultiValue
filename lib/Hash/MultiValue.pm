@@ -89,7 +89,7 @@ sub clear {
 
 sub clone {
     my $self = shift;
-    ref($self)->new($self->flatten);
+    CORE::ref($self)->new($self->flatten);
 }
 
 sub keys {
