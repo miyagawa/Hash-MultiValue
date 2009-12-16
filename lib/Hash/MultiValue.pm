@@ -136,9 +136,10 @@ contain multiple values per key, inspired by MultiDict of WebOb.
 
 In a typical web application, the request parameters (a.k.a CGI
 parameters) can be single value or multi values. Using CGI.pm style
-C<param> is one way to deal with this problem (and it is good), but
-there's another approach to convert parameters into a hash reference,
-like Catalyst's C<< $c->req->parameters >> does, and it B<sucks>.
+C<param> is one way to deal with this problem (and it is good, as long
+as you're aware of its list context gotcha), but there's another
+approach to convert parameters into a hash reference, like Catalyst's
+C<< $c->req->parameters >> does, and it B<sucks>.
 
 Why? Because the value could be just a scalar if there is one value
 and an array ref if there are multiple, depending on I<user input>
@@ -151,7 +152,7 @@ this to be defensive:
 
 Otherwise you'll get a random runtime exception of I<Can't use string
 as an ARRAY ref> or get stringified array I<ARRAY(0xXXXXXXXXX)> as a
-string, I<depending on user input> and which is miserable and
+string, I<depending on user input> and that is miserable and
 insecure.
 
 This module provides a solution to this by making it behave like a

@@ -32,9 +32,10 @@ DESCRIPTION
 WHY THIS MODULE
     In a typical web application, the request parameters (a.k.a CGI
     parameters) can be single value or multi values. Using CGI.pm style
-    "param" is one way to deal with this problem (and it is good), but
-    there's another approach to convert parameters into a hash reference,
-    like Catalyst's "$c->req->parameters" does, and it sucks.
+    "param" is one way to deal with this problem (and it is good, as long as
+    you're aware of its list context gotcha), but there's another approach
+    to convert parameters into a hash reference, like Catalyst's
+    "$c->req->parameters" does, and it sucks.
 
     Why? Because the value could be just a scalar if there is one value and
     an array ref if there are multiple, depending on *user input* rather
@@ -47,7 +48,7 @@ WHY THIS MODULE
 
     Otherwise you'll get a random runtime exception of *Can't use string as
     an ARRAY ref* or get stringified array *ARRAY(0xXXXXXXXXX)* as a string,
-    *depending on user input* and which is miserable and insecure.
+    *depending on user input* and that is miserable and insecure.
 
     This module provides a solution to this by making it behave like a
     single value hash reference, but also has an API to get multiple values
@@ -65,8 +66,25 @@ HOW THIS WORKS
     Yes, there is Tie::Hash::MultiValue and this module tries to solve
     exactly the same problem, but using a different implementation.
 
+UPDATING CONTENTS
+    When you update the content of the hash, DO NOT UPDATE using the hash
+    reference interface: this won't write through to the tracking object.
+
+      my $hash = Hash::MultiValue->new(...);
+
+      # WRONG
+      $hash->{foo} = 'bar';
+      delete $hash->{foo};
+
+      # Correct
+      $hash->add(foo => 'bar');
+      $hash->remove('foo');
+
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>
+
+    Thanks to Michael Peters for the suggestion to use inside-out objects
+    instead of tie and Aristotle Pegaltzis for various performance fixes.
 
 LICENSE
     This library is free software; you can redistribute it and/or modify it
