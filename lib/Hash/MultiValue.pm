@@ -32,11 +32,6 @@ sub _iter {
     }
 }
 
-sub items {
-    my $self = shift;
-    $items{refaddr $self};
-}
-
 sub get {
     my($self, $key) = @_;
     $self->{$key};
@@ -52,7 +47,7 @@ sub getall {
 sub add {
     my($self, $key, $value) = @_;
     $self->{$key} = $value; # this should be the value since it's more "last"
-    push @{$self->items}, $key, $value;
+    push @{$items{refaddr $self}}, $key, $value;
 }
 
 sub remove {
@@ -61,7 +56,7 @@ sub remove {
 
     my @new;
     $self->_iter(sub { push @new, @_ if $_[0] ne $key });
-    @{$self->items} = @new;
+    @{$items{refaddr $self}} = @new;
 }
 
 sub keys {
@@ -73,7 +68,7 @@ sub keys {
 
 sub flatten {
     my $self = shift;
-    @{$self->items};
+    @{$items{refaddr $self}};
 }
 
 sub as_hash {
