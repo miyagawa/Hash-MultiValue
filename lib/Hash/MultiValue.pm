@@ -22,11 +22,15 @@ sub DESTROY {
     my $self = shift;
     delete $items{refaddr $self};
 }
+
 sub _iter {
     my($self, $cb) = @_;
     my $items = $items{refaddr $self};
     my $i;
-    $cb->( @{$items}[ $i-1, $i ] ) while ++$i < $#$items;
+    while ($i < $#$items) {
+        $cb->( @{$items}[ $i, $i+1 ] );
+        $i += 2;
+    }
 }
 
 sub get {
@@ -44,7 +48,7 @@ sub get_all {
 sub add {
     my $self = shift;
     my $key = shift;
-    $self->{$key} = @_[-1];
+    $self->{$key} = $_[-1];
     push @{$items{refaddr $self}}, $key, @_;
 }
 
