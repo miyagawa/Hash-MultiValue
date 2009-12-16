@@ -1,4 +1,7 @@
 Revision history for Perl extension Hash::MultiValue
 
+0.02  Wed Dec 16 14:27:01 PST 2009
+        - Silenced warnings for ref() 
+
 0.01  Tue Dec 15 00:35:54 2009
         - original version
