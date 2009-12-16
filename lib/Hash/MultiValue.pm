@@ -302,7 +302,9 @@ but obviously not sharing the reference. It's identical to:
   $copy = $hash->as_hashref;
 
 Creates a new plain (unblessed) hash reference where values are all
-single elements.
+single elements. It's identical to:
+
+  $copy = +{%$hash};
 
 =item mixed
 

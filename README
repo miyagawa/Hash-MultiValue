@@ -145,7 +145,9 @@ METHODS
           $copy = $hash->as_hashref;
 
         Creates a new plain (unblessed) hash reference where values are all
-        single elements.
+        single elements. It's identical to:
+
+          $copy = +{%$hash};
 
     mixed
           $mixed = $hash->mixed;
