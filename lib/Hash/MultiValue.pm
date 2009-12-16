@@ -259,7 +259,7 @@ I<finalized> (= non-blessed) hash reference.
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
 
-Aristotle Pegaltzis
+Aristotle Pagaltzis
 
 Thanks to Michael Peters for the suggestion to use inside-out objects
 instead of tie.
@@ -271,6 +271,12 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<http://pythonpaste.org/webob/#multidict> L<Tie::Hash::MultiValue>
+=over 4
+
+=item * L<http://pythonpaste.org/webob/#multidict>
+
+=item * L<Tie::Hash::MultiValue>
+
+=back
 
 =cut
