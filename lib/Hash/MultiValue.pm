@@ -4,7 +4,9 @@ use strict;
 use 5.008_001;
 our $VERSION = '0.01';
 
+use Carp ();
 use Scalar::Util qw(refaddr);
+
 my %keys;
 my %values;
 
@@ -30,6 +32,21 @@ sub DESTROY {
 sub get {
     my($self, $key) = @_;
     $self->{$key};
+}
+
+sub get_one {
+    my($self, $key) = @_;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my @v = @{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k];
+
+    if (@v == 0) {
+        Carp::croak "Key not found: $key";
+    } elsif (@v > 1) {
+        Carp::croak "Multiple values match: $key";
+    } else {
+        return $v[0];
+    }
 }
 
 sub get_all {
