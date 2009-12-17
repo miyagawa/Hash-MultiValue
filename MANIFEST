@@ -26,6 +26,7 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
+t/from_mixed.t
 t/hash.t
 t/multi.t
 t/write.t
