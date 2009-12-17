@@ -25,6 +25,19 @@ sub new {
     $self;
 }
 
+sub from_mixed {
+    my $class = shift;
+
+    my %hash  = @_ == 1 ? %{$_[0]} : @_;
+    my @flat;
+    while (my($key, $value) = each %hash) {
+        my @v = CORE::ref($value) eq 'ARRAY' ? @$value : ($value);
+        push @flat, $key, $_ for @v;
+    }
+
+    $class->new(@flat);
+}
+
 sub DESTROY {
     my $this = refaddr shift;
     delete $keys{$this};
@@ -325,7 +338,8 @@ single scalar. It's identical to:
 Creates a new plain (unblessed) hash reference where the value is a
 single scalar, or an array ref when there are multiple values for a
 same key. Handy to create a hash reference that is often used in web
-application frameworks request objects such as L<Catalyst>.
+application frameworks request objects such as L<Catalyst>. Ths method
+does exactly the opposite of C<from_mixed>.
 
 =item as_hashref_multi
 
@@ -334,6 +348,18 @@ application frameworks request objects such as L<Catalyst>.
 Creates a new plain (unblessed) hash reference where values are all
 array references, regardless of there are single or multiple values
 for a same key.
+
+=item from_mixed
+
+  $hash = Hash::MultiValue->from_mixed({
+      foo => [ 'a', 'b' ],
+      bar => 'c',
+  });
+
+Creates a new object out of a hash reference where the value is single
+or an array ref depending on the number of elements. Handy to convert
+from those request objects used in web frameworks such as L<Catalyst>.
+This method does exactly the opposite of C<as_hashref_mixed>.
 
 =back
 

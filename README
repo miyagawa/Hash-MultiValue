@@ -155,7 +155,8 @@ METHODS
         Creates a new plain (unblessed) hash reference where the value is a
         single scalar, or an array ref when there are multiple values for a
         same key. Handy to create a hash reference that is often used in web
-        application frameworks request objects such as Catalyst.
+        application frameworks request objects such as Catalyst. Ths method
+        does exactly the opposite of "from_mixed".
 
     as_hashref_multi
           $multi = $hash->as_hashref_multi
@@ -163,6 +164,18 @@ METHODS
         Creates a new plain (unblessed) hash reference where values are all
         array references, regardless of there are single or multiple values
         for a same key.
+
+    from_mixed
+          $hash = Hash::MultiValue->from_mixed({
+              foo => [ 'a', 'b' ],
+              bar => 'c',
+          });
+
+        Creates a new object out of a hash reference where the value is
+        single or an array ref depending on the number of elements. Handy to
+        convert from those request objects used in web frameworks such as
+        Catalyst. This method does exactly the opposite of
+        "as_hashref_mixed".
 
 WHY LAST NOT FIRST?
     You might wonder why this module uses the *last* value of the same key
