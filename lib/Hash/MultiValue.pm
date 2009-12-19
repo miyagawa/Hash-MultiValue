@@ -49,26 +49,19 @@ sub get {
     $self->{$key};
 }
 
-sub get_one {
-    my($self, $key) = @_;
-    my $this = refaddr $self;
-    my $k = $keys{$this};
-    my @v = @{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k];
-
-    if (@v == 0) {
-        Carp::croak "Key not found: $key";
-    } elsif (@v > 1) {
-        Carp::croak "Multiple values match: $key";
-    } else {
-        return $v[0];
-    }
-}
-
 sub get_all {
     my($self, $key) = @_;
     my $this = refaddr $self;
     my $k = $keys{$this};
     (@{$values{$this}}[grep { $key eq $k->[$_] } 0 .. $#$k]);
+}
+
+sub get_one {
+    my ($self, $key) = @_;
+    my @v = $self->get_all($key);
+    return $v[0] if @v == 1;
+    Carp::croak "Key not found: $key" if not @v;
+    Carp::croak "Multiple values match: $key";
 }
 
 sub add {
