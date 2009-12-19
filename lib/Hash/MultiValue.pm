@@ -12,30 +12,27 @@ my %values;
 
 sub ref { 'HASH' }
 
+sub create {
+    my $class = shift;
+    my $self = bless {}, $class;
+    my $this = refaddr $self;
+    $keys{$this} = [];
+    $values{$this} = [];
+    $self;
+}
+
 sub new {
     my $class = shift;
-    my $self = bless { @_ }, $class;
-
-    my $this = refaddr $self;
-    my $k = $keys{$this} = [];
-    my $v = $values{$this} = [];
-
-    push @{ $_ & 1 ? $v : $k }, $_[$_] for 0 .. $#_;
-
-    $self;
+    my $self = $class->create;
+    unshift @_, $self;
+    goto &{ $self->can('merge_flat') };
 }
 
 sub from_mixed {
     my $class = shift;
-
-    my %hash  = @_ == 1 ? %{$_[0]} : @_;
-    my @flat;
-    while (my($key, $value) = each %hash) {
-        my @v = CORE::ref($value) eq 'ARRAY' ? @$value : ($value);
-        push @flat, $key, $_ for @v;
-    }
-
-    $class->new(@flat);
+    my $self = $class->create;
+    unshift @_, $self;
+    goto &{ $self->can('merge_mixed') };
 }
 
 sub DESTROY {
@@ -67,10 +64,37 @@ sub get_one {
 sub add {
     my $self = shift;
     my $key = shift;
+    $self->merge_mixed( $key => \@_ );
+    $self;
+}
+
+sub merge_flat {
+    my $self = shift;
     my $this = refaddr $self;
-    $self->{$key} = $_[-1] if @_;
-    push @{$keys{$this}}, ($key) x @_;
-    push @{$values{$this}}, @_;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+    push @{ $_ & 1 ? $v : $k }, $_[$_] for 0 .. $#_;
+    @{$self}{@$k} = @$v;
+    $self;
+}
+
+sub merge_mixed {
+    my $self = shift;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+
+    my $hash;
+    $hash = shift if @_ == 1;
+
+    while ( my ($key, $value) = @_ ? splice @_, 0, 2 : each %$hash ) {
+        my @value = CORE::ref($value) eq 'ARRAY' ? @$value : $value;
+        next if not @value;
+        $self->{$key} = $value[-1];
+        push @$k, ($key) x @value;
+        push @$v, @value;
+    }
+
     $self;
 }
 
