@@ -1,5 +1,8 @@
 Revision history for Perl extension Hash::MultiValue
 
+0.04  Sat Dec 19 10:55:31 PST 2009
+        - Some internal rewrites and merge methods (aristotle)
+
 0.03  Thu Dec 17 09:57:50 PST 2009
         - Added ->from_mixed constructor
 
