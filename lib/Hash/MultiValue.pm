@@ -71,10 +71,11 @@ sub add {
     $self->{$key} = $_[-1] if @_;
     push @{$keys{$this}}, ($key) x @_;
     push @{$values{$this}}, @_;
+    $self;
 }
 
 sub remove {
-    my($self, $key) = @_;
+    my ($self, $key) = @_;
     delete $self->{$key};
 
     my $this = refaddr $self;
@@ -83,6 +84,7 @@ sub remove {
     my @keep = grep { $key ne $k->[$_] } 0 .. $#$k;
     @$k = @$k[@keep];
     @$v = @$v[@keep];
+    $self;
 }
 
 sub clear {
@@ -91,6 +93,7 @@ sub clear {
     my $this = refaddr $self;
     $keys{$this} = [];
     $values{$this} = [];
+    $self;
 }
 
 sub clone {
