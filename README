@@ -149,8 +149,9 @@ METHODS
 
           $copy = +{%$hash};
 
-    as_hashref_mixed
+    as_hashref_mixed, mixed
           $mixed = $hash->as_hashref_mixed;
+          $mixed = $hash->mixed;
 
         Creates a new plain (unblessed) hash reference where the value is a
         single scalar, or an array ref when there are multiple values for a
@@ -158,8 +159,9 @@ METHODS
         application frameworks request objects such as Catalyst. Ths method
         does exactly the opposite of "from_mixed".
 
-    as_hashref_multi
+    as_hashref_multi, multi
           $multi = $hash->as_hashref_multi
+          $multi = $hash->multi
 
         Creates a new plain (unblessed) hash reference where values are all
         array references, regardless of there are single or multiple values
