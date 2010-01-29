@@ -160,6 +160,8 @@ sub as_hashref_mixed {
     \%hash;
 }
 
+sub mixed { $_[0]->as_hashref_mixed }
+
 sub as_hashref_multi {
     my $self = shift;
     my $this = refaddr $self;
@@ -171,6 +173,8 @@ sub as_hashref_multi {
 
     \%hash;
 }
+
+sub multi { $_[0]->as_hashref_multi }
 
 1;
 __END__
@@ -351,9 +355,10 @@ single scalar. It's identical to:
 
   $copy = +{%$hash};
 
-=item as_hashref_mixed
+=item as_hashref_mixed, mixed
 
   $mixed = $hash->as_hashref_mixed;
+  $mixed = $hash->mixed;
 
 Creates a new plain (unblessed) hash reference where the value is a
 single scalar, or an array ref when there are multiple values for a
@@ -361,9 +366,10 @@ same key. Handy to create a hash reference that is often used in web
 application frameworks request objects such as L<Catalyst>. Ths method
 does exactly the opposite of C<from_mixed>.
 
-=item as_hashref_multi
+=item as_hashref_multi, multi
 
   $multi = $hash->as_hashref_multi
+  $multi = $hash->multi
 
 Creates a new plain (unblessed) hash reference where values are all
 array references, regardless of there are single or multiple values

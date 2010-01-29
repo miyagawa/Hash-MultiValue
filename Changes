@@ -1,5 +1,8 @@
 Revision history for Perl extension Hash::MultiValue
 
+0.05  Thu Jan 28 19:27:45 PST 2010
+        - Added ->mixed and ->multi as aliases for as_hashref_mixed and as_hashref_multi.
+
 0.04  Sat Dec 19 10:55:31 PST 2009
         - Some internal rewrites and merge methods (aristotle)
 
