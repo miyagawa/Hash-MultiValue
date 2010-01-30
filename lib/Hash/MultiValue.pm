@@ -147,6 +147,7 @@ sub each {
     for (0 .. $#$k) {
         $code->($k->[$_], $v->[$_]);
     }
+    return $self;
 }
 
 sub as_hashref {
@@ -368,6 +369,10 @@ starting at 0.  For example:
   # 1: b = 2
   # 2: c = 3
   # 3: a = 4
+
+Be careful not to change C<@_> inside your coderef!  It will update the
+tracking object but not the plain hash.  In the future, this limitation may be
+removed.
 
 =item clone
 

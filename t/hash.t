@@ -51,4 +51,13 @@ my $hash = Hash::MultiValue->new(
         ];
 }
 
+{
+    # Test for this even though we want people not to do it
+    $hash->each(sub { $_[1]++ });
+    is_deeply [ $hash->flatten ],
+        [ foo => 'b', foo => 'c', bar => 'bba', baz => 34 ];
+    is_deeply $hash,
+        { foo => 'b', bar => "baz", baz => 33 };
+}
+
 done_testing;
