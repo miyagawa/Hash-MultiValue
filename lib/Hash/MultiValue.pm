@@ -2,7 +2,7 @@ package Hash::MultiValue;
 
 use strict;
 use 5.008_001;
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Carp ();
 use Scalar::Util qw(refaddr);
@@ -489,6 +489,8 @@ and then all C<ref> calls to Hash::MultiValue objects will return I<HASH>.
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
 
 Aristotle Pagaltzis
+
+Hans Dieter Pearcey
 
 Thanks to Michael Peters for the suggestion to use inside-out objects
 instead of tie.
