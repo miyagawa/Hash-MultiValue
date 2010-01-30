@@ -15,8 +15,8 @@ SYNOPSIS
       my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
       my @foo = $hash->get_all('foo'); # ('a', 'b')
 
-      keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
-      $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+      keys %$hash; # ('foo', 'bar')    not guaranteed to be ordered
+      $hash->keys; # ('foo', 'foo', 'bar') guaranteed to be ordered
 
 DESCRIPTION
     Hash::MultiValue is an object (and a plain hash reference) that may
@@ -109,7 +109,15 @@ METHODS
     keys
           @keys = $hash->keys;
 
-        Returns a list of keys, in an ordered way.
+        Returns a list of all keys, including duplicates (see the example in
+        the "SYNOPSIS").
+
+        If you want only unique keys, use "keys %$hash", as normal.
+
+    values
+          @values = $hash->values;
+
+        Returns a list of all values, in the same order as "$hash->keys".
 
     add
           $hash->add($key, $value [, $value ... ]);
@@ -132,6 +140,31 @@ METHODS
 
         Gets pairs of keys and values. This should be exactly the same pairs
         which are given to "new" method unless you updated the data.
+
+    each
+          $hash->each($code);
+
+          # e.g.
+          $hash->each(sub { print "$_[0] = $_[1]\n" });
+
+        Calls $code once for each "($key, $value)" pair. This is a more
+        convenient alternative to calling "flatten" and then iterating over
+        it two items at a time.
+
+        Inside $code, $_ contains the current iteration through the loop,
+        starting at 0. For example:
+
+          $hash = Hash::MultiValue->new(a => 1, b => 2, c => 3, a => 4);
+
+          $hash->each(sub { print "$_: $_[0] = $_[1]\n" });
+          # 0: a = 1
+          # 1: b = 2
+          # 2: c = 3
+          # 3: a = 4
+
+        Be careful not to change @_ inside your coderef! It will update the
+        tracking object but not the plain hash. In the future, this
+        limitation may be removed.
 
     clone
           $new = $hash->clone;

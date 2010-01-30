@@ -58,6 +58,9 @@ my $hash = Hash::MultiValue->new(
         [ foo => 'b', foo => 'c', bar => 'bba', baz => 34 ];
     is_deeply $hash,
         { foo => 'b', bar => "baz", baz => 33 };
+
+    is_deeply [ $hash->keys   ], [ qw(foo foo bar baz) ];
+    is_deeply [ $hash->values ], [ qw(b c bba 34) ];
 }
 
 done_testing;

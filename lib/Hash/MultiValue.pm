@@ -127,8 +127,12 @@ sub clone {
 
 sub keys {
     my $self = shift;
-    my %seen;
-    grep { !$seen{$_}++ } @{$keys{refaddr $self}};
+    return @{$keys{refaddr $self}};
+}
+
+sub values {
+    my $self = shift;
+    return @{$values{refaddr $self}};
 }
 
 sub flatten {
@@ -164,7 +168,7 @@ sub as_hashref_mixed {
 
     my %hash;
     push @{$hash{$k->[$_]}}, $v->[$_] for 0 .. $#$k;
-    for (values %hash) {
+    for (CORE::values %hash) {
         $_ = $_->[0] if 1 == @$_;
     }
 
@@ -213,8 +217,8 @@ Hash::MultiValue - Store multiple values per key
   my $foo = $hash->get('foo');    # 'b' (always, regardless of context)
   my @foo = $hash->get_all('foo'); # ('a', 'b')
 
-  keys %$hash; # ('foo', 'bar') not guaranteed to be ordered
-  $hash->keys; # ('foo', 'bar') guaranteed to be ordered
+  keys %$hash; # ('foo', 'bar')    not guaranteed to be ordered
+  $hash->keys; # ('foo', 'foo', 'bar') guaranteed to be ordered
 
 =head1 DESCRIPTION
 
@@ -320,7 +324,16 @@ attached, the result will be an empty list.
 
   @keys = $hash->keys;
 
-Returns a list of keys, in an ordered way.
+Returns a list of all keys, including duplicates (see the example in the
+L</SYNOPSIS>).
+
+If you want only unique keys, use C<< keys %$hash >>, as normal.
+
+=item values
+
+  @values = $hash->values;
+
+Returns a list of all values, in the same order as C<< $hash->keys >>.
 
 =item add
 
