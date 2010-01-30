@@ -39,4 +39,16 @@ my $hash = Hash::MultiValue->new(
     is_deeply $foo->{bar}, [ 'baz' ];
 }
 
+{
+    my @output;
+    $hash->each(sub { push @output, [ $_, @_ ] });
+    is_deeply \@output,
+        [
+            [ 0, 'foo', 'a' ],
+            [ 1, 'foo', 'b' ],
+            [ 2, 'bar', 'baz' ],
+            [ 3, 'baz', 33 ],
+        ];
+}
+
 done_testing;

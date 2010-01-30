@@ -139,6 +139,16 @@ sub flatten {
     map { $k->[$_], $v->[$_] } 0 .. $#$k;
 }
 
+sub each {
+    my ($self, $code) = @_;
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+    for (0 .. $#$k) {
+        $code->($k->[$_], $v->[$_]);
+    }
+}
+
 sub as_hashref {
     my $self = shift;
     my %hash = %$self;
@@ -336,6 +346,28 @@ Clears the hash to be an empty hash reference.
 
 Gets pairs of keys and values. This should be exactly the same pairs
 which are given to C<new> method unless you updated the data.
+
+=item each
+
+  $hash->each($code);
+
+  # e.g.
+  $hash->each(sub { print "$_[0] = $_[1]\n" });
+
+Calls C<$code> once for each C<($key, $value)> pair.  This is a more convenient
+alternative to calling C<flatten> and then iterating over it two items at a
+time.
+
+Inside C<$code>, C<$_> contains the current iteration through the loop,
+starting at 0.  For example:
+
+  $hash = Hash::MultiValue->new(a => 1, b => 2, c => 3, a => 4);
+
+  $hash->each(sub { print "$_: $_[0] = $_[1]\n" });
+  # 0: a = 1
+  # 1: b = 2
+  # 2: c = 3
+  # 3: a = 4
 
 =item clone
 
