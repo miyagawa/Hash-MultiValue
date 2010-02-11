@@ -10,6 +10,10 @@ use Scalar::Util qw(refaddr);
 my %keys;
 my %values;
 
+if (defined &UNIVERSAL::ref::import) {
+    UNIVERSAL::ref->import;
+}
+
 sub ref { 'HASH' }
 
 sub create {
@@ -475,12 +479,8 @@ I<finalized> (= non-blessed) hash reference.
 
 You can also use UNIVERSAL::ref to make it work magically:
 
+  use UNIVERSAL::ref;    # before loading Hash::MultiValue
   use Hash::MultiValue;
-
-  {
-    package Hash::MultiValue; # You need this
-    use UNIVERSAL::ref;
-  }
 
 and then all C<ref> calls to Hash::MultiValue objects will return I<HASH>.
 
