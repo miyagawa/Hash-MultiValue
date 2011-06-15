@@ -29,6 +29,7 @@ t/from_mixed.t
 t/hash.t
 t/multi.t
 t/ref.t
+t/threads.t
 t/write.t
 tools/benchmark.pl
 xt/perlcritic.t
