@@ -9,6 +9,23 @@ use Scalar::Util qw(refaddr);
 
 my %keys;
 my %values;
+my %registry;
+
+BEGIN {
+    require Config;
+    my $needs_registry = ($^O eq 'Win32' || $Config::Config{useithreads});
+    if ($needs_registry) {
+        *CLONE = sub {
+            foreach my $oldaddr (keys %registry) {
+                my $this = refaddr $registry{$oldaddr};
+                $keys{$this}   = delete $keys{$oldaddr};
+                $values{$this} = delete $values{$oldaddr};
+                Scalar::Util::weaken($registry{$this} = delete $registry{$oldaddr});
+            }
+        };
+    }
+    *NEEDS_REGISTRY = sub () { $needs_registry };
+}
 
 if (defined &UNIVERSAL::ref::import) {
     UNIVERSAL::ref->import;
@@ -22,6 +39,9 @@ sub create {
     my $this = refaddr $self;
     $keys{$this} = [];
     $values{$this} = [];
+    if (NEEDS_REGISTRY) {
+        Scalar::Util::weaken($registry{$this} = $self);
+    }
     $self;
 }
 
@@ -43,6 +63,9 @@ sub DESTROY {
     my $this = refaddr shift;
     delete $keys{$this};
     delete $values{$this};
+    if (NEEDS_REGISTRY) {
+        delete $registry{$this};
+    }
 }
 
 sub get {
