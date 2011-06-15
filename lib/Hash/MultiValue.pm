@@ -252,7 +252,7 @@ Hash::MultiValue - Store multiple values per key
 Hash::MultiValue is an object (and a plain hash reference) that may
 contain multiple values per key, inspired by MultiDict of WebOb.
 
-=head1 WHY THIS MODULE
+=head1 RATIONALE
 
 In a typical web application, the request parameters (a.k.a CGI
 parameters) can be single value or multi values. Using CGI.pm style
@@ -410,9 +410,9 @@ starting at 0.  For example:
   # 2: c = 3
   # 3: a = 4
 
-Be careful not to change C<@_> inside your coderef!  It will update the
-tracking object but not the plain hash.  In the future, this limitation may be
-removed.
+Be careful B<not> to change C<@_> inside your coderef!  It will update
+the tracking object but not the plain hash.  In the future, this
+limitation I<may> be removed.
 
 =item clone
 
@@ -445,8 +445,8 @@ does exactly the opposite of C<from_mixed>.
 
 =item as_hashref_multi, multi
 
-  $multi = $hash->as_hashref_multi
-  $multi = $hash->multi
+  $multi = $hash->as_hashref_multi;
+  $multi = $hash->multi;
 
 Creates a new plain (unblessed) hash reference where values are all
 array references, regardless of there are single or multiple values
