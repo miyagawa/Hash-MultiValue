@@ -507,6 +507,12 @@ You can also use UNIVERSAL::ref to make it work magically:
 
 and then all C<ref> calls to Hash::MultiValue objects will return I<HASH>.
 
+=head1 THREAD SAFETY
+
+Prior to version 0.09, this module wasn't safe in a threaded
+environment, including win32 fork() emulation. Versions newer than
+0.09 is considered thread safe.
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa E<lt>miyagawa@bulknews.netE<gt>
