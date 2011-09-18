@@ -22,7 +22,7 @@ DESCRIPTION
     Hash::MultiValue is an object (and a plain hash reference) that may
     contain multiple values per key, inspired by MultiDict of WebOb.
 
-WHY THIS MODULE
+RATIONALE
     In a typical web application, the request parameters (a.k.a CGI
     parameters) can be single value or multi values. Using CGI.pm style
     "param" is one way to deal with this problem (and it is good, as long as
@@ -119,6 +119,14 @@ METHODS
 
         Returns a list of all values, in the same order as "$hash->keys".
 
+    set
+          $hash->set($key [, $value ... ]);
+
+        Changes the stored value(s) of the given $key. This removes or adds
+        pairs as necessary to store the new list but otherwise preserves
+        order of existing pairs. "$hash->{$key}" is updated to point to the
+        last value.
+
     add
           $hash->add($key, $value [, $value ... ]);
 
@@ -164,7 +172,7 @@ METHODS
 
         Be careful not to change @_ inside your coderef! It will update the
         tracking object but not the plain hash. In the future, this
-        limitation may be removed.
+        limitation *may* be removed.
 
     clone
           $new = $hash->clone;
@@ -193,8 +201,8 @@ METHODS
         does exactly the opposite of "from_mixed".
 
     as_hashref_multi, multi
-          $multi = $hash->as_hashref_multi
-          $multi = $hash->multi
+          $multi = $hash->as_hashref_multi;
+          $multi = $hash->multi;
 
         Creates a new plain (unblessed) hash reference where values are all
         array references, regardless of there are single or multiple values
@@ -250,6 +258,11 @@ NOTES ON ref
       use Hash::MultiValue;
 
     and then all "ref" calls to Hash::MultiValue objects will return *HASH*.
+
+THREAD SAFETY
+    Prior to version 0.09, this module wasn't safe in a threaded
+    environment, including win32 fork() emulation. Versions newer than 0.09
+    is considered thread safe.
 
 AUTHOR
     Tatsuhiko Miyagawa <miyagawa@bulknews.net>
