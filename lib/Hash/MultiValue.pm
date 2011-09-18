@@ -88,6 +88,43 @@ sub get_one {
     Carp::croak "Multiple values match: $key";
 }
 
+sub set {
+    my $self = shift;
+    my $key = shift;
+
+    my $this = refaddr $self;
+    my $k = $keys{$this};
+    my $v = $values{$this};
+
+    my @idx = grep { $key eq $k->[$_] } 0 .. $#$k;
+
+    my $added = @_ - @idx;
+    if ($added > 0) {
+        my $start = $#$k + 1;
+        push @$k, ($key) x $added;
+        push @idx, $start .. $#$k;
+    }
+    elsif ($added < 0) {
+        my ($start, @drop, @keep) = splice @idx, $added;
+        for ($start+1 .. $#$k) {
+            shift @drop, next if $_ == $drop[0];
+            push @keep, $_;
+        }
+        splice @$k, $start, 0+@$k, @$k[@keep];
+        splice @$v, $start, 0+@$v, @$v[@keep];
+    }
+
+    if (@_) {
+        @$v[@idx] = @_;
+        $self->{$key} = $_[-1];
+    }
+    else {
+        delete $self->{$key};
+    }
+
+    $self;
+}
+
 sub add {
     my $self = shift;
     my $key = shift;
@@ -127,14 +164,7 @@ sub merge_mixed {
 
 sub remove {
     my ($self, $key) = @_;
-    delete $self->{$key};
-
-    my $this = refaddr $self;
-    my $k = $keys{$this};
-    my $v = $values{$this};
-    my @keep = grep { $key ne $k->[$_] } 0 .. $#$k;
-    @$k = @$k[@keep];
-    @$v = @$v[@keep];
+    $self->set($key);
     $self;
 }
 
@@ -361,6 +391,15 @@ If you want only unique keys, use C<< keys %$hash >>, as normal.
   @values = $hash->values;
 
 Returns a list of all values, in the same order as C<< $hash->keys >>.
+
+=item set
+
+  $hash->set($key [, $value ... ]);
+
+Changes the stored value(s) of the given C<$key>. This removes or adds
+pairs as necessary to store the new list but otherwise preserves order
+of existing pairs. C<< $hash->{$key} >> is updated to point to the last
+value.
 
 =item add
 
