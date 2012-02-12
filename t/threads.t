@@ -7,6 +7,9 @@ BEGIN {
     plan skip_all => "perl interpreter is not compiled with ithreads"
       unless $Config{useithreads};
 
+    plan skip_all => "perl 5.8.1 required for thread tests"
+      unless $] > '5.0080009';
+
     require threads;
 }
 

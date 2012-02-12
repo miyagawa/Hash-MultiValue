@@ -1,7 +1,7 @@
 package Hash::MultiValue;
 
 use strict;
-use 5.008_001;
+use 5.006_002;
 our $VERSION = '0.10';
 
 use Carp ();
