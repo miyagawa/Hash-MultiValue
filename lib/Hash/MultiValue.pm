@@ -106,9 +106,12 @@ sub set {
     }
     elsif ($added < 0) {
         my ($start, @drop, @keep) = splice @idx, $added;
-        for ($start+1 .. $#$k) {
-            shift @drop, next if $_ == $drop[0];
-            push @keep, $_;
+        for my $i ($start+1 .. $#$k) {
+            if ($i == $drop[0]) {
+              shift @drop;
+              next;
+            }
+            push @keep, $i;
         }
         splice @$k, $start, 0+@$k, @$k[@keep];
         splice @$v, $start, 0+@$v, @$v[@keep];

@@ -1,5 +1,7 @@
 Revision history for Perl extension Hash::MultiValue
 
+        - Fix uninitialized warning on older perls
+
 0.10  Sun Sep 18 12:51:49 PDT 2011
         - Implemented set (aristotle)
 
