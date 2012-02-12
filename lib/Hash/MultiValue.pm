@@ -1,7 +1,7 @@
 package Hash::MultiValue;
 
 use strict;
-use 5.008_001;
+use 5.006_002;
 our $VERSION = '0.10';
 
 use Carp ();
@@ -106,12 +106,22 @@ sub set {
     }
     elsif ($added < 0) {
         my ($start, @drop, @keep) = splice @idx, $added;
-        for ($start+1 .. $#$k) {
-            shift @drop, next if $_ == $drop[0];
-            push @keep, $_;
+        for my $i ($start+1 .. $#$k) {
+            if ($i == $drop[0]) {
+              shift @drop;
+              next;
+            }
+            push @keep, $i;
         }
-        splice @$k, $start, 0+@$k, @$k[@keep];
-        splice @$v, $start, 0+@$v, @$v[@keep];
+
+        # this used to be written as
+        #   splice @$_, $start, 0+@$_, @$_[@keep]
+        # however older perls crash on attempts to splice-replace a subscript
+        # of the array currently being splice()d
+        #
+        # I can not seem to find a relevant RT or perldelta entry, but this
+        # seems to have been fixed in 5.8.7
+        @$_ = @$_[0 .. $start-1, @keep] for ($k, $v);
     }
 
     if (@_) {
