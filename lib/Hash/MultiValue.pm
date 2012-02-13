@@ -7,6 +7,9 @@ our $VERSION = '0.11';
 use Carp ();
 use Scalar::Util qw(refaddr);
 
+# there does not seem to be a relevant RT or perldelta entry for this
+use constant _SPLICE_SAME_ARRAY_SEGFAULT => $] < '5.008007';
+
 my %keys;
 my %values;
 my %registry;
@@ -114,14 +117,10 @@ sub set {
             push @keep, $i;
         }
 
-        # this used to be written as
-        #   splice @$_, $start, 0+@$_, @$_[@keep]
-        # however older perls crash on attempts to splice-replace a subscript
-        # of the array currently being splice()d
-        #
-        # I can not seem to find a relevant RT or perldelta entry, but this
-        # seems to have been fixed in 5.8.7
-        @$_ = @$_[0 .. $start-1, @keep] for ($k, $v);
+        splice @$_, $start, 0+@$_, ( _SPLICE_SAME_ARRAY_SEGFAULT
+            ? @{[ @$_[@keep] ]} # force different source array
+            :     @$_[@keep]
+        ) for $k, $v;
     }
 
     if (@_) {
