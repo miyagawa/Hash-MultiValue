@@ -254,6 +254,22 @@ sub as_hashref_multi {
 
 sub multi { $_[0]->as_hashref_multi }
 
+sub STORABLE_freeze {
+    my $self = shift;
+    my $this = refaddr $self;
+    return '', $keys{$this}, $values{$this};
+}
+
+sub STORABLE_thaw {
+    my $self = shift;
+    my ($is_cloning, $serialised, $k, $v) = @_;
+    my $this = refaddr $self;
+    $keys  {$this} = $k;
+    $values{$this} = $v;
+    @{$self}{@$k} = @$v;
+    return $self;
+}
+
 1;
 __END__
 
