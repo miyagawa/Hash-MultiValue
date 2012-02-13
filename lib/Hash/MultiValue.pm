@@ -114,14 +114,10 @@ sub set {
             push @keep, $i;
         }
 
-        # this used to be written as
-        #   splice @$_, $start, 0+@$_, @$_[@keep]
-        # however older perls crash on attempts to splice-replace a subscript
-        # of the array currently being splice()d
-        #
-        # I can not seem to find a relevant RT or perldelta entry, but this
-        # seems to have been fixed in 5.8.7
-        @$_ = @$_[0 .. $start-1, @keep] for ($k, $v);
+        # the @{[]} here is necessary because perls < 5.8.7 segfault
+        # when directly splicing in a subscript from the same array
+        # (there does not seem to be a relevant RT or perldelta entry)
+        splice @$_, $start, 0+@$_, @{[ @$_[@keep] ]} for $k, $v;
     }
 
     if (@_) {
