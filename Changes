@@ -1,5 +1,6 @@
 Revision history for Perl extension Hash::MultiValue
 
+0.12  Wed Feb 15 07:45:50 CET 2012
         - Reapply set method optimisation that was lost in 0.11
         - *really* fix uninitialized warnings in tests (RT#74096)
         - Add support for Storable serialization
