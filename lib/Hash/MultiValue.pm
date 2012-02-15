@@ -42,9 +42,7 @@ sub create {
     my $this = refaddr $self;
     $keys{$this} = [];
     $values{$this} = [];
-    if (NEEDS_REGISTRY) {
-        Scalar::Util::weaken($registry{$this} = $self);
-    }
+    Scalar::Util::weaken($registry{$this} = $self) if NEEDS_REGISTRY;
     $self;
 }
 
@@ -66,9 +64,7 @@ sub DESTROY {
     my $this = refaddr shift;
     delete $keys{$this};
     delete $values{$this};
-    if (NEEDS_REGISTRY) {
-        delete $registry{$this};
-    }
+    delete $registry{$this} if NEEDS_REGISTRY;
 }
 
 sub get {
