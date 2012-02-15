@@ -1,6 +1,7 @@
 package Hash::MultiValue;
 
 use strict;
+no warnings 'void';
 use 5.006_002;
 our $VERSION = '0.11';
 
