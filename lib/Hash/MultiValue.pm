@@ -1,11 +1,13 @@
 package Hash::MultiValue;
 
 use strict;
+no warnings 'void';
 use 5.006_002;
 our $VERSION = '0.11';
 
 use Carp ();
 use Scalar::Util qw(refaddr);
+use constant _BROKEN_SPLICE => $] < '5.008007';
 
 my %keys;
 my %values;
@@ -39,9 +41,7 @@ sub create {
     my $this = refaddr $self;
     $keys{$this} = [];
     $values{$this} = [];
-    if (NEEDS_REGISTRY) {
-        Scalar::Util::weaken($registry{$this} = $self);
-    }
+    Scalar::Util::weaken($registry{$this} = $self) if NEEDS_REGISTRY;
     $self;
 }
 
@@ -63,9 +63,7 @@ sub DESTROY {
     my $this = refaddr shift;
     delete $keys{$this};
     delete $values{$this};
-    if (NEEDS_REGISTRY) {
-        delete $registry{$this};
-    }
+    delete $registry{$this} if NEEDS_REGISTRY;
 }
 
 sub get {
@@ -107,21 +105,22 @@ sub set {
     elsif ($added < 0) {
         my ($start, @drop, @keep) = splice @idx, $added;
         for my $i ($start+1 .. $#$k) {
-            if ($i == $drop[0]) {
-              shift @drop;
-              next;
+            if (@drop and $i == $drop[0]) {
+                shift @drop;
+                next;
             }
             push @keep, $i;
         }
 
-        # this used to be written as
-        #   splice @$_, $start, 0+@$_, @$_[@keep]
-        # however older perls crash on attempts to splice-replace a subscript
-        # of the array currently being splice()d
-        #
-        # I can not seem to find a relevant RT or perldelta entry, but this
-        # seems to have been fixed in 5.8.7
-        @$_ = @$_[0 .. $start-1, @keep] for ($k, $v);
+        splice(
+          @$_,
+          $start,
+          0+@$_,
+          # the @{[]} here is necessary because perls < 5.8.7 segfault
+          # when directly splicing in a subscript from the same array
+          # (there does not seem to be a relevant RT or perldelta entry)
+          _BROKEN_SPLICE ? @{[ @$_[@keep] ]} : @$_[@keep],
+        ) for $k, $v;
     }
 
     if (@_) {
