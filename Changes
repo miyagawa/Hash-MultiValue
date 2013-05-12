@@ -1,5 +1,8 @@
 Revision history for Perl extension Hash::MultiValue
 
+{{$NEXT}}
+        - Use milla
+
 0.13  Fri Oct 19 12:41:45 PDT 2012
         - repackage with Module::Install > 1.04
 
