@@ -3,7 +3,7 @@ package Hash::MultiValue;
 use strict;
 no warnings 'void';
 use 5.006_002;
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use Carp ();
 use Scalar::Util qw(refaddr);
