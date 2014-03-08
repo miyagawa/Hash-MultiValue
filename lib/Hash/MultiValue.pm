@@ -158,11 +158,16 @@ sub merge_mixed {
     $hash = shift if @_ == 1;
 
     while ( my ($key, $value) = @_ ? splice @_, 0, 2 : each %$hash ) {
-        my @value = CORE::ref($value) eq 'ARRAY' ? @$value : $value;
-        next if not @value;
-        $self->{$key} = $value[-1];
-        push @$k, ($key) x @value;
-        push @$v, @value;
+        if ( CORE::ref($value) eq 'ARRAY' ) {
+            next if not @$value;
+            push @$k, ($key) x @$value;
+            push @$v, @$value;
+        }
+        else {
+            push @$k, $key;
+            push @$v, $value;
+        }
+        $self->{$key} = $v->[-1];
     }
 
     $self;
