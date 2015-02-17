@@ -32,7 +32,7 @@ parameters) can be single value or multi values. Using CGI.pm style
 `param` is one way to deal with this problem (and it is good, as long
 as you're aware of its list context gotcha), but there's another
 approach to convert parameters into a hash reference, like Catalyst's
-`$c->req->parameters` does, and it __sucks__.
+`$c->req->parameters` does, and it **sucks**.
 
 Why? Because the value could be just a scalar if there is one value
 and an array ref if there are multiple, depending on _user input_
@@ -60,14 +60,14 @@ but it also keeps the original pair state in the object tracker (a.k.a
 inside out objects) and allows you to access the original pairs and
 multiple values via the method calls, such as `get_all` or `flatten`.
 
-This module does not use `tie` or [overload](http://search.cpan.org/perldoc?overload) and is quite fast.
+This module does not use `tie` or [overload](https://metacpan.org/pod/overload) and is quite fast.
 
-Yes, there is [Tie::Hash::MultiValue](http://search.cpan.org/perldoc?Tie::Hash::MultiValue) and this module tries to solve
+Yes, there is [Tie::Hash::MultiValue](https://metacpan.org/pod/Tie::Hash::MultiValue) and this module tries to solve
 exactly the same problem, but using a different implementation.
 
 # UPDATING CONTENTS
 
-When you update the content of the hash, __DO NOT UPDATE__ using the
+When you update the content of the hash, **DO NOT UPDATE** using the
 hash reference interface: this won't write through to the tracking
 object.
 
@@ -99,22 +99,22 @@ See below for the list of updating methods.
     Returns a single value for the given `$key`. If there are multiple
     values, the last one (not first one) is returned. See below for why.
 
-    Note that this __always__ returns the single element as a scalar,
+    Note that this **always** returns the single element as a scalar,
     regardless of its context, unlike CGI.pm's `param` method etc.
 
 - get\_one
 
         $value = $hash->get_one($key);
 
-    Returns a single value for the given `$key`. This method __croaks__ if
+    Returns a single value for the given `$key`. This method **croaks** if
     there is no value or multiple values associated with the key, so you
-    should wrap it with eval or modules like [Try::Tiny](http://search.cpan.org/perldoc?Try::Tiny).
+    should wrap it with eval or modules like [Try::Tiny](https://metacpan.org/pod/Try::Tiny).
 
 - get\_all
 
         @values = $hash->get_all($key);
 
-    Returns a list of values for the given `$key`. This method __always__
+    Returns a list of values for the given `$key`. This method **always**
     returns a list regardless of its context. If there is no value
     attached, the result will be an empty list.
 
@@ -123,7 +123,7 @@ See below for the list of updating methods.
         @keys = $hash->keys;
 
     Returns a list of all keys, including duplicates (see the example in the
-    ["SYNOPSIS"](#SYNOPSIS)).
+    ["SYNOPSIS"](#synopsis)).
 
     If you want only unique keys, use `keys %$hash`, as normal.
 
@@ -190,7 +190,7 @@ See below for the list of updating methods.
         # 2: c = 3
         # 3: a = 4
 
-    Be careful __not__ to change `@_` inside your coderef!  It will update
+    Be careful **not** to change `@_` inside your coderef!  It will update
     the tracking object but not the plain hash.  In the future, this
     limitation _may_ be removed.
 
@@ -220,7 +220,7 @@ See below for the list of updating methods.
     Creates a new plain (unblessed) hash reference where the value is a
     single scalar, or an array ref when there are multiple values for a
     same key. Handy to create a hash reference that is often used in web
-    application frameworks request objects such as [Catalyst](http://search.cpan.org/perldoc?Catalyst). Ths method
+    application frameworks request objects such as [Catalyst](https://metacpan.org/pod/Catalyst). Ths method
     does exactly the opposite of `from_mixed`.
 
 - as\_hashref\_multi, multi
@@ -241,7 +241,7 @@ See below for the list of updating methods.
 
     Creates a new object out of a hash reference where the value is single
     or an array ref depending on the number of elements. Handy to convert
-    from those request objects used in web frameworks such as [Catalyst](http://search.cpan.org/perldoc?Catalyst).
+    from those request objects used in web frameworks such as [Catalyst](https://metacpan.org/pod/Catalyst).
     This method does exactly the opposite of `as_hashref_mixed`.
 
 # WHY LAST NOT FIRST?
@@ -309,5 +309,5 @@ it under the same terms as Perl itself.
 
 # SEE ALSO
 
-- [http://pythonpaste.org/webob/\#multidict](http://pythonpaste.org/webob/\#multidict)
-- [Tie::Hash::MultiValue](http://search.cpan.org/perldoc?Tie::Hash::MultiValue)
+- [http://pythonpaste.org/webob/#multidict](http://pythonpaste.org/webob/#multidict)
+- [Tie::Hash::MultiValue](https://metacpan.org/pod/Tie::Hash::MultiValue)
