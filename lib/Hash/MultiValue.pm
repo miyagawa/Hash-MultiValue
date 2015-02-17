@@ -243,7 +243,7 @@ sub as_hashref_mixed {
     \%hash;
 }
 
-sub mixed { $_[0]->as_hashref_mixed }
+*mixed = \&as_hashref_mixed;
 
 sub as_hashref_multi {
     my $self = shift;
@@ -257,7 +257,7 @@ sub as_hashref_multi {
     \%hash;
 }
 
-sub multi { $_[0]->as_hashref_multi }
+*multi = \&as_hashref_multi;
 
 sub STORABLE_freeze {
     my $self = shift;
