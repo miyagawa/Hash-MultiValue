@@ -51,14 +51,14 @@ sub new {
     my $class = shift;
     my $self = $class->create;
     unshift @_, $self;
-    goto &{ $self->can('merge_flat') };
+    &{ $self->can('merge_flat') };
 }
 
 sub from_mixed {
     my $class = shift;
     my $self = $class->create;
     unshift @_, $self;
-    goto &{ $self->can('merge_mixed') };
+    &{ $self->can('merge_mixed') };
 }
 
 sub DESTROY {
